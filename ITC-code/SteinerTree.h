@@ -1,6 +1,5 @@
 #ifndef __STEINER_TREE_H__
 #define __STEINER_TREE_H__
-
 #include <bits/stdc++.h>
 using namespace std;
 #define FOREACH(i, v) for (__typeof((v).begin()) i = (v).begin(); i != (v).end(); i++)

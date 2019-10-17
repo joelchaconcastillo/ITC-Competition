@@ -7,12 +7,7 @@
 
 using namespace std;
 
-void printer(int signal){
-	finished = true;
-}
-
 MA::MA(int N_, double pc_, double pm_, double finalTime_){
-	signal(SIGTERM, printer);
 	if (N % 2){ cerr << "El tam. de poblacion debe ser par" << endl; exit(-1); }
 	N = N_;
 	pc = pc_;
@@ -27,7 +22,6 @@ void MA::initPopulation(){
 	for (int i = 0; i < N; i++){
 		//cout << "Crea ind " << i << endl;
 		ExtendedIndividual *ei = new ExtendedIndividual();
-		ei->ind.restart();
 		population.push_back(ei);	
 	}
 }
@@ -54,14 +48,14 @@ void MA::crossover(){
 	}
 	for (int i = 0; i < offspring.size(); i+=2){
 		if (generateRandomDouble0_Max(1) <= pc){
-			offspring[i]->ind.dependentCrossover(offspring[i+1]->ind);
+			offspring[i]->ind.Crossover(offspring[i+1]->ind);
 		}
 	}
 }
 
 void MA::mutation(){
 	for (int i = 0; i < offspring.size(); i++){
-		offspring[i]->ind.dependentMutation(pm);
+		offspring[i]->ind.Mutation(pm);
 	}
 }
 

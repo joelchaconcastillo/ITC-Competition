@@ -1,10 +1,10 @@
 #ifndef __MA_H__
 #define __MA_H__
 
-#include "SteinerTree.h"
+#include "TimeTabling.h"
 
 struct ExtendedIndividual {
-	SteinerTree ind;
+	TimeTabling ind;
 	int dist;
 };
 

@@ -5,10 +5,12 @@ int main(int argc, char **argv){
 	double pc = 0.9;
 	double pm = 0.01;
 	double finalTime = 25 * 60;
-	MA ma(N, pc, pm, finalTime);
 	srand(time(NULL));
-	//string file = string(argv[1]);
-	SteinerTreeProblem STP;
-	SteinerTree::SteinerTreeproblem = &STP;
-	ma.run();
+
+	//MA ma(N, pc, pm, finalTime);
+	///string file = string(argv[1]);
+	string file = "Instances/public/iku-fal17.xml";
+	TimeTablingProblem TTP(file);
+	TimeTabling::TimeTablingproblem = &TTP;
+	//ma.run();
 }
