@@ -3,11 +3,13 @@
 #include "utils.h"
 using namespace std;
 
-//////////////////////////Funciones del problema ///////////////////////////////////////
+//////////////////////////Problem information///////////////////////////////////////
 TimeTablingProblem* TimeTabling::TimeTablingproblem;
 long long best = 1e16;
+TimeTablingProblem::TimeTablingProblem(string file){
 
-//////////////////////////// Funciones del individuo ////////////////////////////////
+}
+////////////////////////////Individual information ////////////////////////////////
 
 long long TimeTabling::calculateFitness(){
   return 0;
@@ -19,9 +21,7 @@ void printBest(){
 }
 void TimeTabling::localSearch(){
 }
-TimeTablingProblem::TimeTablingProblem(string file){
 
-}
 int TimeTabling::getDistance(TimeTabling &ind){
 return 0;
 }
