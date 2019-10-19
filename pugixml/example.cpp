@@ -18,4 +18,17 @@ int main()
   //          std::cout << "Tool " << tool.attribute("Filename").value() << " has timeout " << timeout << "\n";
     }
     cout << doc.child("problem").child("rooms").child("room").find_child_by_attribute("id", "capacity", "55");
+
+    pugi::xml_document doc2;
+    pugi::xml_node node = doc2.append_child("node");
+    pugi::xml_node descr = node.append_child("description");
+    descr.append_child(pugi::node_pcdata).set_value("Simple node");
+    // add param node before the description
+    pugi::xml_node param = node.insert_child_before("param", descr);
+    
+    // add attributes to param node
+    param.append_attribute("name") = "version";
+    param.append_attribute("value") = 1.1;
+    param.insert_attribute_after("type", param.attribute("name")) = "float";
+    doc2.save_file("save_file_output.xml");
 }
