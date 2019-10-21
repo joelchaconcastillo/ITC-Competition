@@ -67,36 +67,92 @@ void TimeTablingProblem::Load(string file)
 	}
     }
 
-   //////reading courses configurations...
-    ///this->courses.resize(1); //first index is one...
-    ///this->configuration.resize(1);
-    ///this->subpart.resize(1);
-
+   //////reading courses, configurations, subpart and classes...
+    this->courses.resize(1); //first index is one...
+    this->configuration.resize(1);
+    this->subpart.resize(1);
+    this->classes.resize(1);
     for (pugi::xml_node course: doc.child("problem").child("courses")) //for each course ...
     {
-//	this->course.push_back(course.attribute("id"))
+	vector< int > course_to_configuration;
         for (pugi::xml_node config: course) //for each configuration
 	{
+	   course_to_configuration.push_back(config.attribute("id").as_int());
+	   vector< int > configuration_to_subpart;
            for (pugi::xml_node subpart:config) //for each subpart
 	   {
+	      vector <int> subpart_to_class;
               for (pugi::xml_node iclass:subpart) //for each class
 	      {
-                 for (pugi::xml_node inside_class:iclass) //for each
+		 Class str_class;
+		 str_class.limit = iclass.attribute("limit").as_int();
+		 str_class.Parent_id = iclass.attribute("parent").as_int();
+                 for (pugi::xml_node inside_class:iclass) //for each attribute inside to class..
 		 {
 		      if( !strcmp(inside_class.name(), "room") )
 		      {
-			cout << inside_class.attribute("id").value() <<endl;
+			str_class.p_room_penalty[inside_class.attribute("id").as_int()] = inside_class.attribute("penalty").as_int();
                       }
 		      else if( !strcmp(inside_class.name(),"time"))
 		      {
-
+			  Time str_time;
+		          string days = inside_class.attribute("days").value();
+                          str_time.days = stoll(days, nullptr, 2); //convert binary string to long long integer
+		          str_time.start = inside_class.attribute("start").as_int();
+		          str_time.length = inside_class.attribute("length").as_int();
+		          string weeks = inside_class.attribute("weeks").value();
+		          str_time.weeks = stoll(weeks, nullptr, 2);
+		          str_time.penalty = inside_class.attribute("penalty").as_llong();
+			  str_class.times.push_back(str_time);
 	              }
 		 }
+		 this->classes.push_back(str_class);
+		 subpart_to_class.push_back(iclass.attribute("id").as_int());
               }
+	      this->subpart.push_back(subpart_to_class);
+	      configuration_to_subpart.push_back(subpart.attribute("id").as_int());
 	   }
+	   this->configuration.push_back(configuration_to_subpart);
+	   course_to_configuration.push_back(config.attribute("id").as_int());
 	}
+	this->courses.push_back(course_to_configuration);
+    }
+    ////// reading distributions..
+    distributions.resize(1);
+    for (pugi::xml_node distribution_i: doc.child("problem").child("distributions")) //for each course ...
+    {
+       Distribution str_distribution;
+       str_distribution.type =  distribution_i.attribute("type").value();
+       str_distribution.required = distribution_i.attribute("required").as_bool();
+       str_distribution.penalty = distribution_i.attribute("penalty").as_llong();
+       
+       for (pugi::xml_node class_in_distribution:distribution_i)
+       {
+          str_distribution.classes.push_back(class_in_distribution.attribute("id").as_int());
+       }
+      // distributions_by_type[distribution_i.attribute("type").value()].push_back(distributions.size());
+       distributions.push_back(str_distribution);
+    }
+    //reading students...
+    //
+    students.resize(1);
+    for (pugi::xml_node student_i: doc.child("problem").child("students")) //for each course ...
+    {
+       vector<int> idx_courses;
+       for(pugi::xml_node course_i:student_i)
+       {
+	idx_courses.push_back(course_i.attribute("id").as_int());
+       }
+       students.push_back(idx_courses);
     }
 
+	cout << "rooms... " << rooms.size() <<endl;
+	cout << "courses... " << courses.size() <<endl;
+	cout << "configuration... " << configuration.size() <<endl;
+	cout << "subpart... " << subpart.size() <<endl;
+	cout << "classes... " << classes.size() <<endl;
+	cout << "distributions... " << distributions.size() <<endl;
+	cout << "student... " << students.size() <<endl;
 
 }
 ////////////////////////////Individual information ////////////////////////////////

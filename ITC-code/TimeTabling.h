@@ -36,7 +36,7 @@ class TimeTablingProblem{
                  int Parent_id;
                  int limit;
                  vector<Time> times;
-                 vector<pair<int, int> > p_room_penalty; // penality to asign room <id_room, penalty>
+                 unordered_map <int, int>  p_room_penalty; // penality to asign room <id_room, penalty>
                  bool rooms; // a class could have an unset room ...
               };
 		TimeTablingProblem(string file);
@@ -50,12 +50,12 @@ class TimeTablingProblem{
 		int time_w, room_w, distribution_w, student_w; //specifications of weights for the optimization criteria, i.e. each sum has a weight factor..
 
 		vector <Room> rooms;
-		vector <Distribution> distribution;
-		vector <int> students; //to courses..
-		vector <int> courses; // to configuration;
-		vector <int> configuration; //to Subpart;
-		vector < vector< int > > Subpart; //to Classes
+		vector < vector <int> > courses; // to configuration;
+		vector < vector <int> > configuration; //to Subpart;
+		vector < vector <int> > subpart; //to Classes
 		vector <Class> classes;
+		vector <Distribution> distributions;
+		vector < vector <int> > students; //to courses..
 		unordered_map<string, vector<int> > distributions_by_type;
 };
 class TimeTabling{
