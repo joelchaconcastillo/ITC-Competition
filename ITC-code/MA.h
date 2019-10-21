@@ -3,14 +3,14 @@
 
 #include "TimeTabling.h"
 
-struct ExtendedIndividual {
-	TimeTabling ind;
-	int dist;
-};
+//struct Individual {
+//	TimeTabling ind;
+//	int dist;
+//};
 
 class MA {
 	public:
-		MA(int N_, double pc_, double pm_, double finalTime_);
+		MA(int N_, double pc_, double pm_, double finalTime_, TimeTablingProblem &TTP_);
 		void run();
 	private:
 		//Parameters of MA
@@ -29,11 +29,13 @@ class MA {
 		void replacement();
 
 		//Internal attributes of MA
-		vector< ExtendedIndividual * > population; 
-		vector< ExtendedIndividual * > parents;
-		vector< ExtendedIndividual * > offspring;
+		vector< Individual * > population; 
+		vector< Individual * > parents;
+		vector< Individual * > offspring;
 		double initialTime;
 		double DI;
+		TimeTablingProblem *TTP;
+	        Individual bestI;
 };
 
 #endif

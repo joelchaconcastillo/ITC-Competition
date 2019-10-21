@@ -58,22 +58,31 @@ class TimeTablingProblem{
 		vector < vector <int> > students; //to courses..
 		unordered_map<string, vector<int> > distributions_by_type;
 };
-class TimeTabling{
+class Individual{
 	public:
-		TimeTabling(){
-		
+		Individual(TimeTablingProblem &TTP_){
+		  this->TTP= &TTP_;
+		  x_var_time.resize(TTP->classes.size(), -1);
+		  x_var_room.resize(TTP->classes.size(), -1);
+		  x_var_student.resize(TTP->students.size());
+//		  x_var.resize((this->TTP->classes.size()-1)*2); // id_time and id_room corresponding to each class...
 		}
-		~TimeTabling(){
-		
+		Individual(){}
+		~Individual(){
 		}
-		int getDistance(TimeTabling &ind);
+		
+		int getDistance(Individual &ind);
 		void Mutation(double pm);
-		void Crossover(TimeTabling &ind);
+		void Crossover(Individual &ind);
 		void localSearch();
 		long long calculateFitness();
 		void print();
 		long long fitness;
-		static TimeTablingProblem *TimeTablingproblem;
+		//static TimeTablingProblem *TimeTablingproblem;
+		TimeTablingProblem *TTP;
+ 		int dist;
+		vector<int> x_var_time, x_var_room;
+		vector< vector<int> > x_var_student;
 };
 
 #endif

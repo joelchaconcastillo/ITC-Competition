@@ -7,21 +7,22 @@
 
 using namespace std;
 
-MA::MA(int N_, double pc_, double pm_, double finalTime_){
+MA::MA(int N_, double pc_, double pm_, double finalTime_, TimeTablingProblem &TTP_){
 	if (N % 2){ cerr << "El tam. de poblacion debe ser par" << endl; exit(-1); }
-	N = N_;
-	pc = pc_;
-	pm = pm_;
-	finalTime = finalTime_;
+	this->TTP = &TTP_;
+	this->N = N_;
+	this->pc = pc_;
+	this->pm = pm_;
+	this->finalTime = finalTime_;
 	struct timeval currentTime; 
 	gettimeofday(&currentTime, NULL);
-	initialTime = (double) (currentTime.tv_sec) + (double) (currentTime.tv_usec)/1.0e6;
+	this->initialTime = (double) (currentTime.tv_sec) + (double) (currentTime.tv_usec)/1.0e6;
 }
 
 void MA::initPopulation(){
 	for (int i = 0; i < N; i++){
 		//cout << "Crea ind " << i << endl;
-		ExtendedIndividual *ei = new ExtendedIndividual();
+		Individual *ei = new Individual(*(this->TTP));
 		population.push_back(ei);	
 	}
 }
@@ -32,7 +33,7 @@ void MA::selectParents(){
 	for (int i = 0; i < N; i++){
 		int first = getRandomInteger0_N(N - 1);
 		int second = getRandomInteger0_N(N - 1);
-		if (population[first]->ind.fitness <= population[second]->ind.fitness){
+		if (population[first]->fitness <= population[second]->fitness){
 			parents.push_back(population[first]);
 		} else {
 			parents.push_back(population[second]);
@@ -42,32 +43,32 @@ void MA::selectParents(){
 
 void MA::crossover(){
 	for (int i = 0; i < parents.size(); i++){
-		ExtendedIndividual *ei = new ExtendedIndividual();
+		Individual *ei = new Individual(*(this->TTP));
 		*ei = *parents[i];
 		offspring.push_back(ei);
 	}
 	for (int i = 0; i < offspring.size(); i+=2){
 		if (generateRandomDouble0_Max(1) <= pc){
-			offspring[i]->ind.Crossover(offspring[i+1]->ind);
+			offspring[i]->Crossover(*(offspring[i+1]));
 		}
 	}
 }
 
 void MA::mutation(){
 	for (int i = 0; i < offspring.size(); i++){
-		offspring[i]->ind.Mutation(pm);
+		offspring[i]->Mutation(pm);
 	}
 }
 
 void MA::localSearch(){
 	for (int i = 0; i < offspring.size(); i++){
-		offspring[i]->ind.localSearch();
+		offspring[i]->localSearch();
 	}
 }
 
 
 void MA::replacement(){
-	vector < ExtendedIndividual* > all;
+	vector < Individual* > all;
 	
 	//Join population and offspring
 	for (int i = 0; i < population.size(); i++){
@@ -84,7 +85,7 @@ void MA::replacement(){
 	//Select best solution
 	int indexBest = 0;
 	for (int i = 1; i < all.size(); i++){
-		if (all[i]->ind.fitness < all[indexBest]->ind.fitness){
+		if (all[i]->fitness < all[indexBest]->fitness){
 			indexBest = i;
 		}
 	}
@@ -103,15 +104,15 @@ void MA::replacement(){
 	while(population.size() != N){
 		//Update distances
 		for (int i = 0; i < all.size(); i++){
-			all[i]->dist = min(all[i]->dist, all[i]->ind.getDistance(population.back()->ind));
+			all[i]->dist = min(all[i]->dist, all[i]->getDistance(*(population.back())));
 		}
 		//Select best option
 		indexBest = 0;
 		for (int i = 1; i < all.size(); i++){
 			bool betterInDist =	(all[i]->dist > all[indexBest]->dist);
 			bool eqInDist = (all[i]->dist == all[indexBest]->dist);
-			bool betterInFit = (all[i]->ind.fitness < all[indexBest]->ind.fitness);
-			bool eqInFit = (all[i]->ind.fitness == all[indexBest]->ind.fitness);
+			bool betterInFit = (all[i]->fitness < all[indexBest]->fitness);
+			bool eqInFit = (all[i]->fitness == all[indexBest]->fitness);
 			if (all[indexBest]->dist < D){//Do not fulfill distance requirement
 				if ((betterInDist) || (eqInDist && betterInFit)){
 					indexBest = i;
@@ -139,7 +140,7 @@ void MA::initDI(){
 	double meanDistance = 0;
 	for (int i = 0; i < population.size(); i++){
 		for (int j = i + 1; j < population.size(); j++){
-			meanDistance += population[i]->ind.getDistance(population[j]->ind);
+			meanDistance += population[i]->getDistance(*(population[j]));
 			//cout << "Distancia: " << population[i]->ind.getDistance(population[j]->ind) << endl;
 		}
 	}
@@ -149,25 +150,25 @@ void MA::initDI(){
 
 void MA::run(){
 	initPopulation();
-	initDI();
-	int generation = 0;
-	while(true){//Infinitas generaciones
-		int minDistance = INT_MAX;
-		for (int i = 0; i < population.size(); i++){
-			for (int j = i + 1; j < population.size(); j++){
-				minDistance = min(minDistance, population[i]->ind.getDistance(population[j]->ind));
-			}
-		}
-		//cout << "Distancia: " << minDistance << endl;
-
-		//cout << "Generacion " << generation << endl;
-		selectParents();
-		crossover();
-		mutation();
-		localSearch();
-		replacement();
-		generation++;
-	}
-	printBest();
+//	initDI();
+//	int generation = 0;
+//	while(true){//Infinitas generaciones
+//		int minDistance = INT_MAX;
+//		for (int i = 0; i < population.size(); i++){
+//			for (int j = i + 1; j < population.size(); j++){
+//				minDistance = min(minDistance, population[i]->getDistance(*(population[j])));
+//			}
+//		}
+//		//cout << "Distancia: " << minDistance << endl;
+//
+//		//cout << "Generacion " << generation << endl;
+//		selectParents();
+//		crossover();
+//		mutation();
+//		localSearch();
+//		replacement();
+//		generation++;
+//	}
+//	printBest();
 }
 
