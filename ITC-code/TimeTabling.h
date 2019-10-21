@@ -4,6 +4,26 @@
 using namespace std;
 #define FOREACH(i, v) for (__typeof((v).begin()) i = (v).begin(); i != (v).end(); i++)
 
+#define HARD 1
+#define SOFT 2
+#define PAR 3
+#define OVERALL 4
+#define SAMESTART 5
+#define SAMETIME 6
+#define SAMEDAYS 7
+#define SAMEWEEKS 8
+#define SAMEROOM 9
+#define OVERLAP 10
+#define SAMEATTENDEES 11
+#define PRECEDENCE 12
+#define WORKDAY 13
+#define MINGAP 14
+#define MAXDAYS 15
+#define MAXDAYLOAD 16
+#define MAXBREAKS 17
+#define MAXBLOCK 18
+#define DIFFERENTTIME 19
+
 void printBest();
 
 
@@ -13,7 +33,7 @@ class TimeTablingProblem{
               struct Time
               {
                  unsigned long int days; //Days of week binary representation (7 bits)
-                 int start;
+                 int start, end;
                  int length;
                  unsigned long weeks; //binary representation weeks of the semester problem-depend
                  long long int penalty;
@@ -26,10 +46,12 @@ class TimeTablingProblem{
               };
               struct Distribution
               {
-                 string type;
+                 int type;
                  bool required;
                  long long int penalty;
-                 vector<int> classes; //classes with this kind of constrint..
+		 int S, G, D, R, M; //slots over S, gaps, daysover D, breaks over R, blocks over M
+                 vector<int> classes; //classes with this kind of constrint.
+		 bool pair;
               };
               struct Class
               {
@@ -37,26 +59,33 @@ class TimeTablingProblem{
                  int limit;
                  vector<Time> times;
                  unordered_map <int, int>  p_room_penalty; // penality to asign room <id_room, penalty>
+		 vector<pair<int, int> > rooms_c;
                  bool rooms; // a class could have an unset room ...
               };
 		TimeTablingProblem(string file);
 		~TimeTablingProblem(){
 		}
 		void Load(string file);
+		void Parsing_type(const char *, Distribution &str_distribution);
 		///problem information header
 		int nrDays, slotsPerDay, nrWeeks;
 		string name;
 		///optimization information header
 		int time_w, room_w, distribution_w, student_w; //specifications of weights for the optimization criteria, i.e. each sum has a weight factor..
 
-		vector <Room> rooms;
+		vector <Room> rooms;	
 		vector < vector <int> > courses; // to configuration;
 		vector < vector <int> > configuration; //to Subpart;
 		vector < vector <int> > subpart; //to Classes
 		vector <Class> classes;
 		vector <Distribution> distributions;
 		vector < vector <int> > students; //to courses..
-		unordered_map<string, vector<int> > distributions_by_type;
+		/////distributions...
+		unordered_map<int, vector<int> > distributions_by_type; //the key is the type
+		vector<int> hard_distributions, soft_distributions; //relation to feasibility
+		vector<int> pair_comparison_distributions, all_comparison_distributions;
+
+		unordered_map<int, unordered_map< bool, vector<int> > > distributions_by_feasibility;
 };
 class Individual{
 	public:
@@ -66,11 +95,13 @@ class Individual{
 		  x_var_room.resize(TTP->classes.size(), -1);
 		  x_var_student.resize(TTP->students.size());
 //		  x_var.resize((this->TTP->classes.size()-1)*2); // id_time and id_room corresponding to each class...
+		  //Load example solution to check the evaluator...
 		}
 		Individual(){}
 		~Individual(){
 		}
 		
+		long long penalize_pair( int id_class_i, int id_class_j, int id_distribution);
 		int getDistance(Individual &ind);
 		void Mutation(double pm);
 		void Crossover(Individual &ind);

@@ -60,6 +60,7 @@ void TimeTablingProblem::Load(string file)
                 str_time.days = stoll(days, nullptr, 2); //convert binary string to long long integer
 		str_time.start = in_room.attribute("start").as_int();
 		str_time.length = in_room.attribute("length").as_int();
+		str_time.end = str_time.start + str_time.length;
 		string weeks = in_room.attribute("weeks").value();
 		str_time.weeks = stoll(weeks, nullptr, 2);
 		str_time.penalty = in_room.attribute("penalty").as_llong();
@@ -67,7 +68,6 @@ void TimeTablingProblem::Load(string file)
     	      }
 	}
     }
-
    //////reading courses, configurations, subpart and classes...
    
     for (pugi::xml_node course: doc.child("problem").child("courses")) //for each course ...
@@ -90,6 +90,7 @@ void TimeTablingProblem::Load(string file)
 		      if( !strcmp(inside_class.name(), "room") )
 		      {
 			str_class.p_room_penalty[inside_class.attribute("id").as_int()-1] = inside_class.attribute("penalty").as_int();
+			str_class.rooms_c.push_back(make_pair(inside_class.attribute("id").as_int()-1, inside_class.attribute("penalty").as_int()));
                       }
 		      else if( !strcmp(inside_class.name(),"time"))
 		      {
@@ -119,8 +120,9 @@ void TimeTablingProblem::Load(string file)
 //    distributions.resize(1);
     for (pugi::xml_node distribution_i: doc.child("problem").child("distributions")) //for each course ...
     {
+       //parsing distribution constraints..
        Distribution str_distribution;
-       str_distribution.type =  distribution_i.attribute("type").value();
+       Parsing_type(distribution_i.attribute("type").value(), str_distribution);
        str_distribution.required = distribution_i.attribute("required").as_bool();
        str_distribution.penalty = distribution_i.attribute("penalty").as_llong();
        
@@ -128,8 +130,23 @@ void TimeTablingProblem::Load(string file)
        {
           str_distribution.classes.push_back(class_in_distribution.attribute("id").as_int()-1);
        }
-      // distributions_by_type[distribution_i.attribute("type").value()].push_back(distributions.size());
+	
+       distributions_by_type[str_distribution.type].push_back(distributions.size());
+
+       distributions_by_feasibility[str_distribution.required][str_distribution.pair].push_back(distributions.size());
+
+       if( str_distribution.required)
+	   hard_distributions.push_back(distributions.size());
+	else
+	   soft_distributions.push_back(distributions.size());
+
+       if( str_distribution.pair)
+	   pair_comparison_distributions.push_back(distributions.size());
+       else
+	   all_comparison_distributions.push_back(distributions.size());
+
        distributions.push_back(str_distribution);
+       
     }
     //reading students...
     //
@@ -149,14 +166,105 @@ void TimeTablingProblem::Load(string file)
 	cout << "configuration... " << configuration.size() <<endl;
 	cout << "subpart... " << subpart.size() <<endl;
 	cout << "classes... " << classes.size() <<endl;
-	cout << "distributions... " << distributions.size() <<endl;
 	cout << "student... " << students.size() <<endl;
+	cout << "distributions... " << distributions.size() <<endl;
+	cout << "distributions pairs, all " <<  pair_comparison_distributions.size() << " "<<all_comparison_distributions.size() <<endl;
+	cout << "distributions required, penalized "<< hard_distributions.size() << " "<< soft_distributions.size() <<endl;
 
+}
+void TimeTablingProblem::Parsing_type(const char *type_, Distribution &str_distribution)
+{
+   str_distribution.pair = true;
+
+   if( !strcmp(type_, "SameStart")) str_distribution.type = SAMESTART;
+   else if(!strcmp(type_, "SameTime")) str_distribution.type = SAMETIME;
+   else if(!strcmp(type_, "SameDays")) str_distribution.type = SAMEDAYS;
+   else if(!strcmp(type_, "SameWeeks")) str_distribution.type = SAMEWEEKS;
+   else if(!strcmp(type_, "SameRoom")) str_distribution.type = SAMEROOM;
+   else if(!strcmp(type_, "Overlap")) str_distribution.type = OVERLAP;
+   else if(!strcmp(type_, "SameAttendees"))   str_distribution.type = SAMEATTENDEES;
+   else if(!strcmp(type_, "Precedence"))   str_distribution.type = PRECEDENCE;
+   else
+   {
+	if(!strncmp(type_, "WorkDay", 7))
+	{
+	   str_distribution.type = WORKDAY;
+	   sscanf(type_,"WorkDay(%d)", &(str_distribution.S));
+	}
+	else if(!strncmp(type_, "MinGap", 6))
+	{
+	   str_distribution.type = MINGAP;
+	   sscanf(type_,"MinGap(%d)", &(str_distribution.G));
+	}
+	else if(!strncmp(type_, "MaxDays", 7))
+	{
+	   str_distribution.type = MAXDAYS;
+           str_distribution.pair = false;
+	   sscanf(type_,"MaxDays(%d)", &(str_distribution.D));
+	}
+	else if(!strncmp(type_, "MaxDayLoad", 10))
+	{
+	   str_distribution.type = MAXDAYLOAD;
+           str_distribution.pair = false;
+	   sscanf(type_,"MaxDayLoad(%d)", &(str_distribution.S));
+	}
+	else if(!strncmp(type_, "MaxBreaks", 9))
+	{
+	   str_distribution.type = MAXBREAKS;
+           str_distribution.pair = false;
+	   sscanf(type_,"MaxBreaks(%d,%d)", &(str_distribution.R), &(str_distribution.S));
+	}
+	else if(!strncmp(type_, "MaxBlock", 8))
+	{
+	   str_distribution.type = MAXBLOCK;
+           str_distribution.pair = false;
+	   sscanf(type_,"MaxBlock(%d,%d)", &(str_distribution.M), &(str_distribution.S));
+	}
+   }
 }
 ////////////////////////////Individual information ////////////////////////////////
 
 long long Individual::calculateFitness(){
-  return 0;
+
+  long long sum_penalization = 0;
+  ///Checking distributions between pair classes..
+  for(int i = 0; i < this->x_var_time.size(); i++)
+  {
+     for(int j = i+1; j < this->x_var_time.size(); j++)
+     {
+	for(int k = 0; k < this->TTP->pair_comparison_distributions.size(); k++)
+	{
+	   sum_penalization += penalize_pair(i, j, k);
+	}	
+     }
+  }
+  return sum_penalization;
+}
+long long Individual::penalize_pair( int id_class_i, int id_class_j, int id_distribution)
+{
+
+  TimeTablingProblem::Time C_ti = this->TTP->classes[id_class_i].times[this->x_var_time[id_class_i]];
+  TimeTablingProblem::Time C_tj = this->TTP->classes[id_class_j].times[this->x_var_time[id_class_j]];
+
+  pair< int, int> p_room_i = this->TTP->classes[id_class_i].rooms_c[this->x_var_room[id_class_i]];
+  pair< int, int> p_room_j = this->TTP->classes[id_class_j].rooms_c[this->x_var_room[id_class_j]];
+
+  TimeTablingProblem::Room C_ri = this->TTP->rooms[p_room_i.first];
+  TimeTablingProblem::Room C_rj = this->TTP->rooms[p_room_j.first];
+
+  TimeTablingProblem::Distribution dist = this->TTP->distributions[id_class_i];
+
+   if( dist.type == SAMESTART  )
+      if(C_ti.start == C_tj.start) 
+         return dist.penalty;
+   else if( dist.type == SAMETIME  )
+       if((C_ti.start <= C_tj.start && C_tj.end <= C_ti.end) || (C_tj.start <= C_ti.start && C_ti.end <= C_tj.end) )
+	 return dist.penalty;
+   else if( dist.type == DIFFERENTTIME  )
+	if( (C_ti.end <= C_tj.start )  || (C_tj.end <= C_ti.start)  )
+	 return dist.penalty;
+
+	
 }
 //Individual bestI;
 
