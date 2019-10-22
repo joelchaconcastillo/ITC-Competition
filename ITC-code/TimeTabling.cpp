@@ -161,6 +161,13 @@ void TimeTablingProblem::Load(string file)
        students.push_back(idx_courses);
     }
 
+
+double average = 0.0;
+for(int i = 0 ; i < distributions.size(); i++)
+{
+   average += distributions[i].classes.size();
+}
+average /= distributions.size();
 	cout << "rooms... " << rooms.size() <<endl;
 	cout << "courses... " << courses.size() <<endl;
 	cout << "configuration... " << configuration.size() <<endl;
@@ -170,6 +177,7 @@ void TimeTablingProblem::Load(string file)
 	cout << "distributions... " << distributions.size() <<endl;
 	cout << "distributions pairs, all " <<  pair_comparison_distributions.size() << " "<<all_comparison_distributions.size() <<endl;
 	cout << "distributions required, penalized "<< hard_distributions.size() << " "<< soft_distributions.size() <<endl;
+	cout << "average classes by distribution "<< average <<endl;
 
 }
 void TimeTablingProblem::Parsing_type(const char *type_, Distribution &str_distribution)
@@ -178,12 +186,17 @@ void TimeTablingProblem::Parsing_type(const char *type_, Distribution &str_distr
 
    if( !strcmp(type_, "SameStart")) str_distribution.type = SAMESTART;
    else if(!strcmp(type_, "SameTime")) str_distribution.type = SAMETIME;
+   else if(!strcmp(type_, "DifferentTime")) str_distribution.type = DIFFERENTTIME;
    else if(!strcmp(type_, "SameDays")) str_distribution.type = SAMEDAYS;
+   else if(!strcmp(type_, "DifferentDays")) str_distribution.type = DIFFERENTDAYS;
    else if(!strcmp(type_, "SameWeeks")) str_distribution.type = SAMEWEEKS;
+   else if(!strcmp(type_, "DifferentWeeks")) str_distribution.type = DIFFERENTWEEKS;
    else if(!strcmp(type_, "SameRoom")) str_distribution.type = SAMEROOM;
+   else if(!strcmp(type_, "DifferentRoom")) str_distribution.type = DIFFERENTROOM;
    else if(!strcmp(type_, "Overlap")) str_distribution.type = OVERLAP;
    else if(!strcmp(type_, "SameAttendees"))   str_distribution.type = SAMEATTENDEES;
    else if(!strcmp(type_, "Precedence"))   str_distribution.type = PRECEDENCE;
+   else if(!strcmp(type_, "NotOverlap"))   str_distribution.type = NOTOVERLAP;
    else
    {
 	if(!strncmp(type_, "WorkDay", 7))
@@ -255,14 +268,48 @@ long long Individual::penalize_pair( int id_class_i, int id_class_j, int id_dist
   TimeTablingProblem::Distribution dist = this->TTP->distributions[id_class_i];
 
    if( dist.type == SAMESTART  )
-      if(C_ti.start == C_tj.start) 
+      if(!(C_ti.start == C_tj.start)) 
          return dist.penalty;
    else if( dist.type == SAMETIME  )
-       if((C_ti.start <= C_tj.start && C_tj.end <= C_ti.end) || (C_tj.start <= C_ti.start && C_ti.end <= C_tj.end) )
+       if( !( (C_ti.start <= C_tj.start && C_tj.end <= C_ti.end) || (C_tj.start <= C_ti.start && C_ti.end <= C_tj.end) ) )
 	 return dist.penalty;
-   else if( dist.type == DIFFERENTTIME  )
-	if( (C_ti.end <= C_tj.start )  || (C_tj.end <= C_ti.start)  )
+   else if( dist.type == DIFFERENTTIME )
+	if( !((C_ti.end <= C_tj.start )  || (C_tj.end <= C_ti.start)  ))
 	 return dist.penalty;
+  else if(dist.type == SAMEDAYS) 
+	if( !(((C_ti.days | C_tj.days) == C_ti.days)  || ((C_ti.days | C_tj.days) == C_tj.days) ))
+	return dist.penalty;
+   else if( dist.type == DIFFERENTDAYS )
+	if(!( (C_ti.days & C_tj.days) == 0))
+	 return dist.penalty;
+   else if(dist.type == SAMEWEEKS) 
+	if(!( ((C_ti.weeks | C_tj.weeks) == C_ti.weeks)  || ((C_ti.weeks | C_tj.weeks) == C_tj.weeks) ))
+	return dist.penalty;
+   else if( dist.type == DIFFERENTWEEKS )
+	if( !((C_ti.weeks & C_tj.weeks) == 0))
+	 return dist.penalty;
+   else if( dist.type == OVERLAP)
+	if(!( (C_tj.start < C_ti.end) && (C_ti.start < C_tj.end) && ( (C_ti.days & C_tj.days)!=0 && (C_ti.weeks & C_tj.weeks) != 0 ) ))
+	   return dist.penalty;
+   else if( dist.type == NOTOVERLAP)
+	if( !((C_ti.end <= C_tj.start) || (C_tj.end <= C_ti.start) || ( (C_ti.days & C_tj.days)!=0 || (C_ti.weeks & C_tj.weeks) != 0 ) ))
+	   return dist.penalty;
+//  else if(dist.type == SAMEROOM)
+//	if(!( C_ri == C_rj ))
+//	   return dist.penalty;
+//  else if(dist.type == DIFFERENTROOM)
+//	if(!( C_ri != C_rj ))
+//	   return dist.penalty;
+//  else if(dist.type == SAMEATTENDEES)
+//	if(  )
+
+
+
+  
+ 
+
+
+  
 
 	
 }

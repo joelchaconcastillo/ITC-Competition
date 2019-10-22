@@ -23,6 +23,10 @@ using namespace std;
 #define MAXBREAKS 17
 #define MAXBLOCK 18
 #define DIFFERENTTIME 19
+#define DIFFERENTDAYS 20
+#define DIFFERENTWEEKS 21
+#define DIFFERENTROOM 22
+#define NOTOVERLAP 23
 
 void printBest();
 
