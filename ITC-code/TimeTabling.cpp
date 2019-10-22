@@ -11,6 +11,7 @@ long long best = 1e16;
 TimeTablingProblem::TimeTablingProblem(string file){
   //loading the instance infor..
   Load(file);
+
 }
 void TimeTablingProblem::Load(string file)
 {
@@ -47,11 +48,11 @@ void TimeTablingProblem::Load(string file)
 	rooms[id-1].capacity = room.attribute("capacity").as_int();
 	for (pugi::xml_node in_room: room) //for each travel...
 	{
-	      if( !strcmp(in_room.name(),"room"))
+	      if( !strcmp(in_room.name(),"travel"))
 	      {
                  int travel = in_room.attribute("room").as_int();
                  int value = in_room.attribute("value").as_int();
-                 this->rooms[id-1].p_travel_to_room[travel] = value;
+                 this->rooms[id-1].time_travel_to_room[travel] = value;
 	      }
 	      else if( !strcmp(in_room.name(), "unavailable"))
 	      {
@@ -64,7 +65,8 @@ void TimeTablingProblem::Load(string file)
 		string weeks = in_room.attribute("weeks").value();
 		str_time.weeks = stoll(weeks, nullptr, 2);
 		str_time.penalty = in_room.attribute("penalty").as_llong();
-		this->rooms[id-1].unavailable.push_back(str_time);
+		this->rooms[id-1].unavailable.push_back(times.size());
+		times.push_back(str_time);
     	      }
 	}
     }
@@ -99,10 +101,12 @@ void TimeTablingProblem::Load(string file)
                           str_time.days = stoll(days, nullptr, 2); //convert binary string to long long integer
 		          str_time.start = inside_class.attribute("start").as_int();
 		          str_time.length = inside_class.attribute("length").as_int();
+		          str_time.end = str_time.start + str_time.length;
 		          string weeks = inside_class.attribute("weeks").value();
 		          str_time.weeks = stoll(weeks, nullptr, 2);
 		          str_time.penalty = inside_class.attribute("penalty").as_llong();
-			  str_class.times.push_back(str_time);
+			  str_class.times.push_back(times.size());
+			  this->times.push_back(str_time);
 	              }
 		 }
 		 this->classes.push_back(str_class);
@@ -236,82 +240,157 @@ void TimeTablingProblem::Parsing_type(const char *type_, Distribution &str_distr
    }
 }
 ////////////////////////////Individual information ////////////////////////////////
-
+/////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////
 long long Individual::calculateFitness(){
 
-  long long sum_penalization = 0;
+  long long distribution_soft_penalizations= 0;
   ///Checking distributions between pair classes..
-  for(int i = 0; i < this->x_var_time.size(); i++)
+  for(int k = 0; k < this->TTP->pair_comparison_distributions.size(); k++)
   {
-     for(int j = i+1; j < this->x_var_time.size(); j++)
+     TimeTablingProblem::Distribution distribution_k = this->TTP->distributions[ this->TTP->pair_comparison_distributions[k]];
+     for(int i = 0; i < distribution_k.classes.size(); i++)
      {
-	for(int k = 0; k < this->TTP->pair_comparison_distributions.size(); k++)
+        for(int j = i+1; j < distribution_k.classes.size(); j++)
 	{
-	   sum_penalization += penalize_pair(i, j, k);
+	   //cout <<  penalize_pair(distribution_k.classes[i], distribution_k.classes[j], k) <<endl;
+	   distribution_soft_penalizations += penalize_pair(distribution_k.classes[i], distribution_k.classes[j], this->TTP->pair_comparison_distributions[k]);
 	}	
      }
   }
-  return sum_penalization;
+
+  ///Checking room penalizations..
+  long long room_penalization = 0;
+  for(int i = 0; i < this->x_var_room.size(); i++)
+  {
+     room_penalization += this->TTP->classes[i].p_room_penalty[this->x_var_room[i]];
+  }
+  long long time_penalization = 0;
+  for(int i = 0; i < this->x_var_time.size(); i++)
+  {
+     time_penalization += this->TTP->times[this->x_var_time[i]].penalty;
+  }
+  long long student_penalization = 0; //check student conflicts...
+ // for(int i = 0; i < this->x_var_time.size(); i++)
+ // {
+ //    time_penalization += this->TTP->times[this->x_var_time[i]].penalty;
+ // }
+  return distribution_soft_penalizations*this->TTP->distribution_w + room_penalization*this->TTP->room_w + time_penalization*this->TTP->time_w + student_penalization*this->TTP->student_w ;
 }
 long long Individual::penalize_pair( int id_class_i, int id_class_j, int id_distribution)
 {
+//  if(this->x_var_room[id_class_i] == -1 || this->x_var_room[id_class_j] == -1 ) return 0;
+//  if(this->x_var_time[id_class_i] == -1 || this->x_var_time[id_class_j] == -1 ) return 0;
 
-  TimeTablingProblem::Time C_ti = this->TTP->classes[id_class_i].times[this->x_var_time[id_class_i]];
-  TimeTablingProblem::Time C_tj = this->TTP->classes[id_class_j].times[this->x_var_time[id_class_j]];
+  TimeTablingProblem::Time C_ti = this->TTP->times[this->x_var_time[id_class_i]];
+  TimeTablingProblem::Time C_tj = this->TTP->times[this->x_var_time[id_class_j]];
 
-  pair< int, int> p_room_i = this->TTP->classes[id_class_i].rooms_c[this->x_var_room[id_class_i]];
-  pair< int, int> p_room_j = this->TTP->classes[id_class_j].rooms_c[this->x_var_room[id_class_j]];
+  TimeTablingProblem::Room C_ri = this->TTP->rooms[this->x_var_room[id_class_i]];
+  TimeTablingProblem::Room C_rj = this->TTP->rooms[this->x_var_room[id_class_j]];
 
-  TimeTablingProblem::Room C_ri = this->TTP->rooms[p_room_i.first];
-  TimeTablingProblem::Room C_rj = this->TTP->rooms[p_room_j.first];
-
-  TimeTablingProblem::Distribution dist = this->TTP->distributions[id_class_i];
-
+  TimeTablingProblem::Distribution dist = this->TTP->distributions[id_distribution];
    if( dist.type == SAMESTART  )
+   {
       if(!(C_ti.start == C_tj.start)) 
          return dist.penalty;
+   }
    else if( dist.type == SAMETIME  )
+   {
        if( !( (C_ti.start <= C_tj.start && C_tj.end <= C_ti.end) || (C_tj.start <= C_ti.start && C_ti.end <= C_tj.end) ) )
 	 return dist.penalty;
+   }
    else if( dist.type == DIFFERENTTIME )
+   { 
 	if( !((C_ti.end <= C_tj.start )  || (C_tj.end <= C_ti.start)  ))
 	 return dist.penalty;
+   }
   else if(dist.type == SAMEDAYS) 
+   {
 	if( !(((C_ti.days | C_tj.days) == C_ti.days)  || ((C_ti.days | C_tj.days) == C_tj.days) ))
 	return dist.penalty;
+   }
    else if( dist.type == DIFFERENTDAYS )
+   {
 	if(!( (C_ti.days & C_tj.days) == 0))
 	 return dist.penalty;
+   }
    else if(dist.type == SAMEWEEKS) 
+   {
 	if(!( ((C_ti.weeks | C_tj.weeks) == C_ti.weeks)  || ((C_ti.weeks | C_tj.weeks) == C_tj.weeks) ))
 	return dist.penalty;
+   }
    else if( dist.type == DIFFERENTWEEKS )
+   {
 	if( !((C_ti.weeks & C_tj.weeks) == 0))
 	 return dist.penalty;
+   }
    else if( dist.type == OVERLAP)
+   {
 	if(!( (C_tj.start < C_ti.end) && (C_ti.start < C_tj.end) && ( (C_ti.days & C_tj.days)!=0 && (C_ti.weeks & C_tj.weeks) != 0 ) ))
 	   return dist.penalty;
+   }
    else if( dist.type == NOTOVERLAP)
-	if( !((C_ti.end <= C_tj.start) || (C_tj.end <= C_ti.start) || ( (C_ti.days & C_tj.days)!=0 || (C_ti.weeks & C_tj.weeks) != 0 ) ))
+   { 
+	if( id_class_i == 78 && id_class_j == 79 )
+	{
+	cout << C_ti.start<< " "<< C_ti.end << " "<< C_ti.days<<" "<<C_ti.weeks <<endl;
+	cout << C_tj.start<< " "<< C_tj.end << " "<< C_tj.days<<" "<<C_tj.weeks <<endl;
+	cout <<"------------------"<<endl;
+	}
+	if( !((C_ti.end <= C_tj.start) || (C_tj.end <= C_ti.start) || ( ((C_ti.days & C_tj.days)==0) || ((C_ti.weeks & C_tj.weeks) == 0) ) ) )
 	   return dist.penalty;
-//  else if(dist.type == SAMEROOM)
-//	if(!( C_ri == C_rj ))
-//	   return dist.penalty;
-//  else if(dist.type == DIFFERENTROOM)
-//	if(!( C_ri != C_rj ))
-//	   return dist.penalty;
-//  else if(dist.type == SAMEATTENDEES)
-//	if(  )
+  }
+  else if(dist.type == SAMEROOM)
+  {
+	if(!(this->x_var_room[id_class_i] == this->x_var_room[id_class_j]))
+	   return dist.penalty;
+  }
+  else if(dist.type == DIFFERENTROOM)
+  {
+	if(!(this->x_var_room[id_class_i] != this->x_var_room[id_class_j]))
+	   return dist.penalty;
+  }
+  else if(dist.type == SAMEATTENDEES)
+  {
+	bool c1 = (C_ti.end + C_ri.time_travel_to_room[this->x_var_room[id_class_j]] ) <= C_tj.start ;
+	bool c2 = (C_tj.end + C_rj.time_travel_to_room[this->x_var_room[id_class_i]] ) <= C_ti.start ;
+        bool c3 = ((C_ti.days & C_tj.days)==0);
+	bool c4 = ((C_ti.weeks & C_tj.weeks)==0);
+	if( !(c1 || c2 || c3 || c4   ))
+           return dist.penalty;
+  }
+  else if(dist.type == PRECEDENCE)
+  {
+     bool c1 = ffsll(C_ti.weeks) < ffsll(C_tj.weeks);
+     bool c2 = ffsll(C_ti.weeks) == ffsll(C_tj.weeks);
+     bool c3 = ffsll(C_ti.days) < ffsll(C_tj.days);
+     bool c4 = ffsll(C_ti.days) == ffsll(C_tj.days);
+     bool c5 = C_ti.end <= C_tj.start;
+     if(!( c1 || ( c2 && ( c3 || ( c4 && c5  )  ) )))
+	return dist.penalty;
+  }
+  else if(dist.type == WORKDAY)
+  {
+     bool c1 = ( (C_ti.days & C_tj.days) == 0);
+     bool c2 = ( (C_ti.weeks & C_tj.weeks) == 0);
+     bool c3 = ( (max(C_ti.end, C_tj.end) - min(C_ti.start, C_tj.start)) <= dist.S );
+     if( !( c1 || c2 || c3))
+	return dist.penalty;
+  }
+  else if(dist.type == MINGAP)
+  {
+    bool c1 = ( (C_ti.days & C_tj.days)==0 );
+    bool c2 = ( (C_ti.weeks & C_tj.weeks)==0 );
+    bool c3 = ( (C_ti.end + dist.G) <= C_tj.start  );
+    bool c4 = ( (C_tj.end + dist.G) <= C_ti.start  );
+    if( !( c1 || c2 || c3 || c4))
+        return dist.penalty;
+  }
 
-
-
-  
- 
-
-
-  
-
-	
+return 0;	
 }
 //Individual bestI;
 
@@ -329,4 +408,57 @@ void Individual::Mutation(double pm){
 void Individual::Crossover(Individual &ind){
 }
 void Individual::print(){
+}
+void Individual::loading_example()
+{
+     pugi::xml_document doc;
+    pugi::xml_parse_result result = doc.load_file("Instances/public/solution-wbg-fal10.xml");
+    if (!result)
+    {
+        cout << "error reading xml-instance "<<endl;
+	exit(0);
+    }
+    for (pugi::xml_node class_i: doc.child("solution")) 
+    {
+	int id_class = class_i.attribute("id").as_int()-1;
+	int id_room= class_i.attribute("room").as_int()-1;
+	TimeTablingProblem::Time str_time;
+        string days = class_i.attribute("days").value();
+        str_time.days = stoll(days, nullptr, 2); //convert binary string to long long integer
+        str_time.start = class_i.attribute("start").as_int();
+        string weeks = class_i.attribute("weeks").value();
+        str_time.weeks = stoll(weeks, nullptr, 2);
+	//getting back the id-time......
+        int id_time=-1;
+	for(int i = 0; i < this->TTP->classes[id_class].times.size(); i++)
+	{
+	   TimeTablingProblem::Time str_time2 = this->TTP->times[this->TTP->classes[id_class].times[i]];
+	   if( (str_time2.days == str_time.days)   )
+	   if( (str_time2.start == str_time.start)   )
+	   if( (str_time2.weeks == str_time.weeks)   )
+	   {
+		id_time = this->TTP->classes[id_class].times[i];
+		break;
+           }
+	}
+	
+        this->x_var_time[id_class] = id_time;
+        this->x_var_room[id_class] = id_room;
+//
+//        for (pugi::xml_node student_i: class_i) 
+//        {
+//	   cout << "-----  " <<student_i.attribute("id").value() <<endl;;
+//	}
+        
+    }
+	for(int i = 0 ;i  < this->x_var_time.size(); i++)
+	cout << " "<< x_var_room[i];
+	for(int i = 0 ;i  < this->x_var_time.size(); i++)
+	cout << " "<< x_var_time[i];
+	cout <<endl;
+
+
+	cout << this->calculateFitness() <<endl;
+  exit(0);
+
 }

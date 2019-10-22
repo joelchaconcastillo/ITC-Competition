@@ -45,8 +45,8 @@ class TimeTablingProblem{
               struct Room
               {
                  int capacity;
-                 vector<Time> unavailable;
-                 unordered_map< int, int > p_travel_to_room; //<id_room, penalty>
+                 vector<int> unavailable;
+                 unordered_map< int, int > time_travel_to_room; // time to travel from this room to room with id
               };
               struct Distribution
               {
@@ -61,7 +61,8 @@ class TimeTablingProblem{
               {
                  int Parent_id;
                  int limit;
-                 vector<Time> times;
+                 //vector<Time> times;
+		 vector<int > times;
                  unordered_map <int, int>  p_room_penalty; // penality to asign room <id_room, penalty>
 		 vector<pair<int, int> > rooms_c;
                  bool rooms; // a class could have an unset room ...
@@ -77,7 +78,8 @@ class TimeTablingProblem{
 		///optimization information header
 		int time_w, room_w, distribution_w, student_w; //specifications of weights for the optimization criteria, i.e. each sum has a weight factor..
 
-		vector <Room> rooms;	
+		vector <Room> rooms;
+		vector <Time> times; 
 		vector < vector <int> > courses; // to configuration;
 		vector < vector <int> > configuration; //to Subpart;
 		vector < vector <int> > subpart; //to Classes
@@ -100,11 +102,13 @@ class Individual{
 		  x_var_student.resize(TTP->students.size());
 //		  x_var.resize((this->TTP->classes.size()-1)*2); // id_time and id_room corresponding to each class...
 		  //Load example solution to check the evaluator...
+                  loading_example(); // solution-wbg-fal10.xml ...
 		}
 		Individual(){}
 		~Individual(){
 		}
-		
+//	        inline int first(long long int bin){ int pos =0; while( !(bin & (1<<pos)) )pos++; return pos;  }		
+		void loading_example();
 		long long penalize_pair( int id_class_i, int id_class_j, int id_distribution);
 		int getDistance(Individual &ind);
 		void Mutation(double pm);
