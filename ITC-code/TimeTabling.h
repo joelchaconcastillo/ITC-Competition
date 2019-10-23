@@ -39,7 +39,7 @@ class TimeTablingProblem{
                  unsigned long int days; //Days of week binary representation (7 bits)
                  int start, end;
                  int length;
-                 unsigned long weeks; //binary representation weeks of the semester problem-depend
+                 unsigned long int weeks; //binary representation weeks of the semester problem-depend
                  long long int penalty;
               };
               struct Room
@@ -103,13 +103,18 @@ class Individual{
 //		  x_var.resize((this->TTP->classes.size()-1)*2); // id_time and id_room corresponding to each class...
 		  //Load example solution to check the evaluator...
                   loading_example(); // solution-wbg-fal10.xml ...
+		   save_xml(*(this));
+		 exit(0);
 		}
 		Individual(){}
 		~Individual(){
 		}
 //	        inline int first(long long int bin){ int pos =0; while( !(bin & (1<<pos)) )pos++; return pos;  }		
 		void loading_example();
+		void save_xml(Individual &indiv);
 		long long penalize_pair( int id_class_i, int id_class_j, int id_distribution);
+		long long penalize_overall( int id_distribution);
+		bool conflicts_student(int id_student);
 		int getDistance(Individual &ind);
 		void Mutation(double pm);
 		void Crossover(Individual &ind);

@@ -154,7 +154,6 @@ void TimeTablingProblem::Load(string file)
     }
     //reading students...
     //
-//    students.resize(1);
     for (pugi::xml_node student_i: doc.child("problem").child("students")) //for each course ...
     {
        vector<int> idx_courses;
@@ -261,6 +260,11 @@ long long Individual::calculateFitness(){
 	}	
      }
   }
+  ///Checking overall distributions...
+ for(int k = 0; k < this->TTP->pair_comparison_distributions.size(); k++)
+  {
+     distribution_soft_penalizations += penalize_overall(this->TTP->pair_comparison_distributions[k]);
+  }
 
   ///Checking room penalizations..
   long long room_penalization = 0;
@@ -274,11 +278,149 @@ long long Individual::calculateFitness(){
      time_penalization += this->TTP->times[this->x_var_time[i]].penalty;
   }
   long long student_penalization = 0; //check student conflicts...
- // for(int i = 0; i < this->x_var_time.size(); i++)
- // {
- //    time_penalization += this->TTP->times[this->x_var_time[i]].penalty;
- // }
+  for(int i = 0; i < this->x_var_student.size(); i++)
+  {
+     if(conflicts_student(i))
+      student_penalization++;
+  }
   return distribution_soft_penalizations*this->TTP->distribution_w + room_penalization*this->TTP->room_w + time_penalization*this->TTP->time_w + student_penalization*this->TTP->student_w ;
+}
+bool Individual::conflicts_student(int id_student)
+{
+   vector<int> classes_by_student = this->x_var_student[id_student]; 
+   for(int i = 0; i < classes_by_student.size(); i++) //checking each class...
+   {
+      for(int j = i+1; j < classes_by_student.size(); j++)
+      {
+	int id_class_i = classes_by_student[i];
+	int id_class_j = classes_by_student[j];
+        TimeTablingProblem::Time C_ti = this->TTP->times[this->x_var_time[id_class_i]];
+        TimeTablingProblem::Time C_tj = this->TTP->times[this->x_var_time[id_class_j]];
+	TimeTablingProblem::Room C_ri = this->TTP->rooms[this->x_var_room[id_class_i]];
+  	TimeTablingProblem::Room C_rj = this->TTP->rooms[this->x_var_room[id_class_j]];
+	bool c1 = (C_tj.start < C_ti.end + C_ri.time_travel_to_room[this->x_var_room[id_class_j]]);
+	bool c2 = (C_ti.start <  C_tj.end + C_rj.time_travel_to_room[this->x_var_room[id_class_i]]);
+        bool c3 = ((C_ti.days & C_tj.days)!=0);
+	bool c4 = ((C_ti.weeks & C_tj.weeks)!=0);
+	if( c1 && c2 && c3 && c4 )
+          return true;	
+      }
+   }
+  return false;
+}
+long long Individual::penalize_overall(int id_distribution)
+{
+  TimeTablingProblem::Distribution dist = this->TTP->distributions[id_distribution];
+  long long int totalpenalization = 0;
+
+  if(dist.type == MAXDAYS)
+  {
+     unsigned long int days = 0;
+      
+     for(int i = 0; i < dist.classes.size(); i++)
+     {
+        int id_class = dist.classes[i]; 
+        TimeTablingProblem::Time C_ti = this->TTP->times[this->x_var_time[id_class]];
+           days |= C_ti.days;
+     } 
+     int nonzerobits = __builtin_popcountll(days);
+    // if( !( nonzerobits <= dist.D) )
+    //   return dist.penalty*(dist.D-nonzerobits);
+       return dist.penalty*max(0, dist.D-nonzerobits);
+  }
+  else if( dist.type == MAXDAYLOAD)
+  {
+     int TotalDayLoad = 0;
+     for(int week_i = 0; week_i < this->TTP->nrWeeks; week_i++)
+     { 
+        for(int day_i = 0; day_i < this->TTP->nrDays; day_i++)
+        {
+	  int day_load = 0;
+          for(int i = 0; i < dist.classes.size(); i++)
+          {
+             int id_class = dist.classes[i]; 
+             TimeTablingProblem::Time C_ti = this->TTP->times[this->x_var_time[id_class]];
+	     bool c1 = (C_ti.days & (1<<day_i))!=0;
+	     bool c2 = (C_ti.weeks & (1<<week_i))!=0;
+             if( c1 && c2  ) day_load += C_ti.length;
+          }
+	  TotalDayLoad += max(0, day_load-dist.S);
+	}
+     }
+     return (dist.penalty*TotalDayLoad)/this->TTP->nrWeeks;
+  }
+  else if( dist.type == MAXBREAKS)
+  {
+     int Totalbreaks = 0;
+     for(int week_i = 0; week_i < this->TTP->nrWeeks; week_i++)
+     { 
+        for(int day_i = 0; day_i < this->TTP->nrDays; day_i++)
+        {
+	  priority_queue< pair<int, int > > pq; ///kind of pre-sort by starts and ends..
+          for(int i = 0; i < dist.classes.size(); i++)
+          {
+             int id_class = dist.classes[i]; 
+             TimeTablingProblem::Time C_ti = this->TTP->times[this->x_var_time[id_class]];
+	     bool c1 = (C_ti.days & (1<<day_i))!=0;
+	     bool c2 = (C_ti.weeks & (1<<week_i))!=0;
+             if( c1 && c2  ) pq.push(make_pair(-C_ti.start, C_ti.end));
+          }
+	  int NBreaks = 0; 
+	  int Block_start = -pq.top().first, Block_end = pq.top().second;
+	  pq.pop();
+	  while(!pq.empty())
+	  {
+	     int current_start = -pq.top().first;
+	     int current_end = pq.top().second;
+	     pq.pop();
+	     if( !(Block_end + dist.S > current_start ) ) //is the same than (Block_end + dist.S <= current_start )
+	     {
+		NBreaks++;
+	     }
+	     Block_end = current_end;
+	  }
+	  Totalbreaks += max(0, NBreaks-dist.R+1);
+	}
+     }
+    return Totalbreaks/this->TTP->nrWeeks;
+  }
+  else if( dist.type == MAXBLOCK)
+  {
+     int TotalBlocksOver = 0;
+     for(int week_i = 0; week_i < this->TTP->nrWeeks; week_i++)
+     { 
+        for(int day_i = 0; day_i < this->TTP->nrDays; day_i++)
+        {
+	  priority_queue< pair<int, int > > pq; ///kind of pre-sort by starts and ends..
+          for(int i = 0; i < dist.classes.size(); i++)
+          {
+             int id_class = dist.classes[i]; 
+             TimeTablingProblem::Time C_ti = this->TTP->times[this->x_var_time[id_class]];
+	     bool c1 = (C_ti.days & (1<<day_i))!=0;
+	     bool c2 = (C_ti.weeks & (1<<week_i))!=0;
+             if( c1 && c2  ) pq.push(make_pair(-C_ti.start, C_ti.end));
+          }
+	  int Block_start = -pq.top().first, Block_end = pq.top().second;
+	  int lengthBlock = Block_end-Block_start;
+	  pq.pop();
+	  while(!pq.empty())
+	  {
+	     int current_start = -pq.top().first;
+	     int current_end = pq.top().second;
+	     pq.pop();
+	     if( !(Block_end + dist.S > current_start ) ) //is the same than (Block_end + dist.S <= current_start )
+	     {
+		lengthBlock = Block_end - Block_start;	
+		if(lengthBlock > dist.M) TotalBlocksOver++;
+		Block_start = current_start;
+	     }
+	     Block_end = current_end;
+	  }
+	}
+     }
+     return TotalBlocksOver*dist.penalty/this->TTP->nrWeeks;
+  }
+  return 0;
 }
 long long Individual::penalize_pair( int id_class_i, int id_class_j, int id_distribution)
 {
@@ -334,12 +476,6 @@ long long Individual::penalize_pair( int id_class_i, int id_class_j, int id_dist
    }
    else if( dist.type == NOTOVERLAP)
    { 
-	if( id_class_i == 78 && id_class_j == 79 )
-	{
-	cout << C_ti.start<< " "<< C_ti.end << " "<< C_ti.days<<" "<<C_ti.weeks <<endl;
-	cout << C_tj.start<< " "<< C_tj.end << " "<< C_tj.days<<" "<<C_tj.weeks <<endl;
-	cout <<"------------------"<<endl;
-	}
 	if( !((C_ti.end <= C_tj.start) || (C_tj.end <= C_ti.start) || ( ((C_ti.days & C_tj.days)==0) || ((C_ti.weeks & C_tj.weeks) == 0) ) ) )
 	   return dist.penalty;
   }
@@ -390,7 +526,7 @@ long long Individual::penalize_pair( int id_class_i, int id_class_j, int id_dist
         return dist.penalty;
   }
 
-return 0;	
+  return 0;	
 }
 //Individual bestI;
 
@@ -408,6 +544,66 @@ void Individual::Mutation(double pm){
 void Individual::Crossover(Individual &ind){
 }
 void Individual::print(){
+}
+void Individual::save_xml(Individual &indiv)
+{
+    pugi::xml_document doc;
+    pugi::xml_node node = doc.append_child("solution");
+    node.append_attribute("name") = indiv.TTP->name.c_str();
+    node.append_attribute("technique") = "Alternative";
+    node.append_attribute("authors") = "cs and jcc";
+    node.append_attribute("institution") = "CIMAT";
+    node.append_attribute("country") = "Mexico";
+
+    vector< vector<int> > class_to_student(indiv.x_var_room.size());
+    
+    for(int i = 0; i < indiv.x_var_student.size(); i++)
+    {
+	for(int j = 0; j < indiv.x_var_student[i].size(); j++)
+	{
+	    int id_class = indiv.x_var_student[i][j];
+	    class_to_student[id_class].push_back(i);
+	}
+    }
+
+
+    for(int i = 0; i < class_to_student.size(); i++)
+    {
+        pugi::xml_node class_i = node.append_child("class");
+        class_i.append_attribute("id") = i+1;
+	unsigned long int days = indiv.TTP->times[indiv.x_var_time[i]].days;
+	unsigned long int weeks = indiv.TTP->times[indiv.x_var_time[i]].weeks;
+	int start = indiv.TTP->times[indiv.x_var_time[i]].start;
+	string str_days = "";
+	for(int k = indiv.TTP->nrDays-1; k >=0 ; k--) str_days.push_back(( (days&(1<<k)) != 0)? '1':'0');
+        class_i.append_attribute("days") = str_days.c_str();
+
+
+        class_i.append_attribute("start") = start;
+	string str_weeks = "";
+	for(int k = indiv.TTP->nrWeeks-1; k >=0 ; k--) str_weeks.push_back(( (weeks&(1<<k)) != 0)? '1':'0');
+
+        class_i.append_attribute("weeks") = str_weeks.c_str();
+        class_i.append_attribute("room") = indiv.x_var_room[i]+1;
+
+	for(int j = 0; j < class_to_student[i].size(); j++)
+	{
+	   pugi::xml_node student_i = class_i.append_child("student");
+           student_i.append_attribute("id") = class_to_student[i][j]+1;
+	}
+    }
+
+//    pugi::xml_node descr = node.append_child("description");
+//    descr.append_child(pugi::node_pcdata).set_value("Simple node");
+//    // add param node before the description
+//    pugi::xml_node param = node.insert_child_before("param", descr);
+//    
+//    // add attributes to param node
+//    param.append_attribute("name") = "version";
+//    param.append_attribute("value") = 1.1;
+//    param.insert_attribute_after("type", param.attribute("name")) = "float";
+    doc.save_file("save_file_output.xml");
+
 }
 void Individual::loading_example()
 {
@@ -444,11 +640,12 @@ void Individual::loading_example()
 	
         this->x_var_time[id_class] = id_time;
         this->x_var_room[id_class] = id_room;
-//
-//        for (pugi::xml_node student_i: class_i) 
-//        {
-//	   cout << "-----  " <<student_i.attribute("id").value() <<endl;;
-//	}
+
+        for (pugi::xml_node student_i: class_i) 
+        {
+	   int id_student = student_i.attribute("id").as_int()-1;
+	   this->x_var_student[id_student].push_back(id_class);
+	}
         
     }
 	for(int i = 0 ;i  < this->x_var_time.size(); i++)
@@ -459,6 +656,5 @@ void Individual::loading_example()
 
 
 	cout << this->calculateFitness() <<endl;
-  exit(0);
 
 }
