@@ -12,7 +12,7 @@ class MA {
 	public:
 		MA(int N_, double pc_, double pm_, double finalTime_, TimeTablingProblem &TTP_);
 		void run();
-	private:
+//	private:
 		//Parameters of MA
 		int N;//Population Size
 		double pc;//crossover probability

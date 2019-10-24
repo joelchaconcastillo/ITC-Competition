@@ -11,7 +11,6 @@ long long best = 1e16;
 TimeTablingProblem::TimeTablingProblem(string file){
   //loading the instance infor..
   Load(file);
-
 }
 void TimeTablingProblem::Load(string file)
 {
@@ -122,6 +121,7 @@ void TimeTablingProblem::Load(string file)
     }
     ////// reading distributions..
 //    distributions.resize(1);
+    distributions_by_class.resize(this->classes.size());
     for (pugi::xml_node distribution_i: doc.child("problem").child("distributions")) //for each course ...
     {
        //parsing distribution constraints..
@@ -129,26 +129,42 @@ void TimeTablingProblem::Load(string file)
        Parsing_type(distribution_i.attribute("type").value(), str_distribution);
        str_distribution.required = distribution_i.attribute("required").as_bool();
        str_distribution.penalty = distribution_i.attribute("penalty").as_llong();
+
+       if( str_distribution.required) str_distribution.penalty = 1; //hard constraints are only one 
        
        for (pugi::xml_node class_in_distribution:distribution_i)
        {
-          str_distribution.classes.push_back(class_in_distribution.attribute("id").as_int()-1);
+	  int id_class = class_in_distribution.attribute("id").as_int()-1;
+          str_distribution.classes.push_back(id_class);
+          distributions_by_class[id_class].push_back(distributions.size());
        }
 	
        distributions_by_type[str_distribution.type].push_back(distributions.size());
 
        distributions_by_feasibility[str_distribution.required][str_distribution.pair].push_back(distributions.size());
-
-       if( str_distribution.required)
+	//////hierarchical storing of the distributions...
+       if( str_distribution.required) //by hardness
+	{
 	   hard_distributions.push_back(distributions.size());
-	else
+           if(str_distribution.pair) //by pair
+	      pair_hard_distributions.push_back(distributions.size());
+	   else
+	      all_hard_distributions.push_back(distributions.size());
+	}
+	else //by softness
+	{
 	   soft_distributions.push_back(distributions.size());
+           if( str_distribution.pair) //by pair
+	     pair_soft_distributions.push_back(distributions.size());
+	   else
+	     all_soft_distributions.push_back(distributions.size());
+	}
 
-       if( str_distribution.pair)
+       if( str_distribution.pair) //by pair
 	   pair_comparison_distributions.push_back(distributions.size());
        else
 	   all_comparison_distributions.push_back(distributions.size());
-
+	
        distributions.push_back(str_distribution);
        
     }
@@ -181,7 +197,6 @@ average /= distributions.size();
 	cout << "distributions pairs, all " <<  pair_comparison_distributions.size() << " "<<all_comparison_distributions.size() <<endl;
 	cout << "distributions required, penalized "<< hard_distributions.size() << " "<< soft_distributions.size() <<endl;
 	cout << "average classes by distribution "<< average <<endl;
-
 }
 void TimeTablingProblem::Parsing_type(const char *type_, Distribution &str_distribution)
 {
@@ -244,26 +259,25 @@ void TimeTablingProblem::Parsing_type(const char *type_, Distribution &str_distr
 /////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////
-long long Individual::calculateFitness(){
+pair<long long, int> Individual::calculateFitness(){
 
   long long distribution_soft_penalizations= 0;
   ///Checking distributions between pair classes..
-  for(int k = 0; k < this->TTP->pair_comparison_distributions.size(); k++)
+  for(int k = 0; k < this->TTP->pair_soft_distributions.size(); k++)
   {
-     TimeTablingProblem::Distribution distribution_k = this->TTP->distributions[ this->TTP->pair_comparison_distributions[k]];
+     TimeTablingProblem::Distribution distribution_k = this->TTP->distributions[ this->TTP->pair_soft_distributions[k]];
      for(int i = 0; i < distribution_k.classes.size(); i++)
      {
         for(int j = i+1; j < distribution_k.classes.size(); j++)
 	{
-	   //cout <<  penalize_pair(distribution_k.classes[i], distribution_k.classes[j], k) <<endl;
-	   distribution_soft_penalizations += penalize_pair(distribution_k.classes[i], distribution_k.classes[j], this->TTP->pair_comparison_distributions[k]);
+	   distribution_soft_penalizations += penalize_pair(distribution_k.classes[i], distribution_k.classes[j], this->TTP->pair_soft_distributions[k]);
 	}	
      }
   }
   ///Checking overall distributions...
- for(int k = 0; k < this->TTP->pair_comparison_distributions.size(); k++)
+ for(int k = 0; k < this->TTP->all_soft_distributions.size(); k++)
   {
-     distribution_soft_penalizations += penalize_overall(this->TTP->pair_comparison_distributions[k]);
+     distribution_soft_penalizations += penalize_overall(this->TTP->all_soft_distributions[k]);
   }
 
   ///Checking room penalizations..
@@ -283,7 +297,27 @@ long long Individual::calculateFitness(){
      if(conflicts_student(i))
       student_penalization++;
   }
-  return distribution_soft_penalizations*this->TTP->distribution_w + room_penalization*this->TTP->room_w + time_penalization*this->TTP->time_w + student_penalization*this->TTP->student_w ;
+  //////////////////Hard distributions//////////////////////////////////////////////////
+  int cont_hard_distributions_violated = 0;
+  for(int k = 0; k < this->TTP->pair_soft_distributions.size(); k++)
+  {
+     TimeTablingProblem::Distribution distribution_k = this->TTP->distributions[ this->TTP->pair_hard_distributions[k]];
+     for(int i = 0; i < distribution_k.classes.size(); i++)
+     {
+        for(int j = i+1; j < distribution_k.classes.size(); j++)
+	{
+	   cont_hard_distributions_violated += penalize_pair(distribution_k.classes[i], distribution_k.classes[j], this->TTP->pair_hard_distributions[k]);
+	}	
+     }
+  }
+  ///Checking overall distributions...
+ for(int k = 0; k < this->TTP->all_hard_distributions.size(); k++)
+  {
+     cont_hard_distributions_violated += penalize_overall(this->TTP->all_hard_distributions[k]);
+  }
+  /////////////!end-Hard distributions////////////////////////////////////////////////////
+
+  return make_pair(distribution_soft_penalizations*this->TTP->distribution_w + room_penalization*this->TTP->room_w + time_penalization*this->TTP->time_w + student_penalization*this->TTP->student_w, cont_hard_distributions_violated);
 }
 bool Individual::conflicts_student(int id_student)
 {
@@ -424,8 +458,8 @@ long long Individual::penalize_overall(int id_distribution)
 }
 long long Individual::penalize_pair( int id_class_i, int id_class_j, int id_distribution)
 {
-//  if(this->x_var_room[id_class_i] == -1 || this->x_var_room[id_class_j] == -1 ) return 0;
-//  if(this->x_var_time[id_class_i] == -1 || this->x_var_time[id_class_j] == -1 ) return 0;
+  if(this->x_var_room[id_class_i] == UNSET || this->x_var_room[id_class_j] == UNSET ) return 0;
+  if(this->x_var_time[id_class_i] == NOT_CHECK || this->x_var_time[id_class_j] == NOT_CHECK ) return 0;
 
   TimeTablingProblem::Time C_ti = this->TTP->times[this->x_var_time[id_class_i]];
   TimeTablingProblem::Time C_tj = this->TTP->times[this->x_var_time[id_class_j]];
@@ -545,23 +579,25 @@ void Individual::Crossover(Individual &ind){
 }
 void Individual::print(){
 }
-void Individual::save_xml(Individual &indiv)
+void Individual::save_xml()
 {
     pugi::xml_document doc;
     pugi::xml_node node = doc.append_child("solution");
-    node.append_attribute("name") = indiv.TTP->name.c_str();
+    node.append_attribute("name") = this->TTP->name.c_str();
     node.append_attribute("technique") = "Alternative";
     node.append_attribute("authors") = "cs and jcc";
     node.append_attribute("institution") = "CIMAT";
     node.append_attribute("country") = "Mexico";
+    node.append_attribute("runtime") = "0";
+    node.append_attribute("cores") = "1";
 
-    vector< vector<int> > class_to_student(indiv.x_var_room.size());
+    vector< vector<int> > class_to_student(this->x_var_room.size());
     
-    for(int i = 0; i < indiv.x_var_student.size(); i++)
+    for(int i = 0; i < this->x_var_student.size(); i++)
     {
-	for(int j = 0; j < indiv.x_var_student[i].size(); j++)
+	for(int j = 0; j < this->x_var_student[i].size(); j++)
 	{
-	    int id_class = indiv.x_var_student[i][j];
+	    int id_class = this->x_var_student[i][j];
 	    class_to_student[id_class].push_back(i);
 	}
     }
@@ -571,20 +607,20 @@ void Individual::save_xml(Individual &indiv)
     {
         pugi::xml_node class_i = node.append_child("class");
         class_i.append_attribute("id") = i+1;
-	unsigned long int days = indiv.TTP->times[indiv.x_var_time[i]].days;
-	unsigned long int weeks = indiv.TTP->times[indiv.x_var_time[i]].weeks;
-	int start = indiv.TTP->times[indiv.x_var_time[i]].start;
+	unsigned long int days = this->TTP->times[this->x_var_time[i]].days;
+	unsigned long int weeks = this->TTP->times[this->x_var_time[i]].weeks;
+	int start = this->TTP->times[this->x_var_time[i]].start;
 	string str_days = "";
-	for(int k = indiv.TTP->nrDays-1; k >=0 ; k--) str_days.push_back(( (days&(1<<k)) != 0)? '1':'0');
+	for(int k = this->TTP->nrDays-1; k >=0 ; k--) str_days.push_back(( (days&(1<<k)) != 0)? '1':'0');
         class_i.append_attribute("days") = str_days.c_str();
 
 
         class_i.append_attribute("start") = start;
 	string str_weeks = "";
-	for(int k = indiv.TTP->nrWeeks-1; k >=0 ; k--) str_weeks.push_back(( (weeks&(1<<k)) != 0)? '1':'0');
+	for(int k = this->TTP->nrWeeks-1; k >=0 ; k--) str_weeks.push_back(( (weeks&(1<<k)) != 0)? '1':'0');
 
         class_i.append_attribute("weeks") = str_weeks.c_str();
-        class_i.append_attribute("room") = indiv.x_var_room[i]+1;
+        class_i.append_attribute("room") = this->x_var_room[i]+1;
 
 	for(int j = 0; j < class_to_student[i].size(); j++)
 	{
@@ -648,13 +684,41 @@ void Individual::loading_example()
 	}
         
     }
-	for(int i = 0 ;i  < this->x_var_time.size(); i++)
-	cout << " "<< x_var_room[i];
-	for(int i = 0 ;i  < this->x_var_time.size(); i++)
-	cout << " "<< x_var_time[i];
-	cout <<endl;
 
+}
+long long int Individual::get_var_time_size()
+{ 
+   long long int prod = 0;
+   for(int i = 0; i < x_var_time.size(); i++)
+   {    
+	if(this->TTP->classes[i].times.empty()) continue;
+	prod += this->TTP->classes[i].times.size();
+   }
+   return prod;
+}
+long long int Individual::get_var_room_size()
+{
+   long long int prod = 0;
+   for(int i = 0; i < x_var_room.size(); i++)
+   {
+	if(this->TTP->classes[i].rooms_c.empty()) continue;
+	prod += this->TTP->classes[i].rooms_c.size();
+   }
+   return prod;
+}
 
-	cout << this->calculateFitness() <<endl;
-
+void Individual::initialization()
+{
+   for(int i = 0; i < this->x_var_time.size(); i++)
+   {
+      x_var_time[i] = this->TTP->classes[i].times[rand()% this->TTP->classes[i].times.size()];
+      if( this->TTP->classes[i].rooms_c.empty()  )
+	x_var_room[i] = UNSET;
+      else
+        x_var_room[i] = this->TTP->classes[i].rooms_c[rand()% this->TTP->classes[i].rooms_c.size()].first;
+   }
+//   for(int i = 0; i < this->x_var_student.size(); i++)
+//   {
+//        
+//   }
 }

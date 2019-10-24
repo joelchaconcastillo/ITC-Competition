@@ -14,5 +14,5 @@ pugixml.o: pugixml.hpp pugixml.cpp
 	g++ -O2 -c -o $@ pugixml.cpp -std=c++11
 
 clean:
-	rm -f main TimeTabling.o MA.o utils.o
-	#rm -f main TimeTabling.o MA.o utils.o pugixml.o
+	#rm -f main TimeTabling.o MA.o utils.o
+	rm -f main TimeTabling.o MA.o utils.o pugixml.o

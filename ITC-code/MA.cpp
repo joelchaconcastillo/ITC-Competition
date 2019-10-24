@@ -8,7 +8,7 @@
 using namespace std;
 
 MA::MA(int N_, double pc_, double pm_, double finalTime_, TimeTablingProblem &TTP_){
-	if (N % 2){ cerr << "El tam. de poblacion debe ser par" << endl; exit(-1); }
+	if (N_ % 2){ cerr << "El tam. de poblacion debe ser par" << endl; exit(-1); }
 	this->TTP = &TTP_;
 	this->N = N_;
 	this->pc = pc_;
@@ -150,25 +150,25 @@ void MA::initDI(){
 
 void MA::run(){
 	initPopulation();
-//	initDI();
-//	int generation = 0;
-//	while(true){//Infinitas generaciones
-//		int minDistance = INT_MAX;
-//		for (int i = 0; i < population.size(); i++){
-//			for (int j = i + 1; j < population.size(); j++){
-//				minDistance = min(minDistance, population[i]->getDistance(*(population[j])));
-//			}
-//		}
-//		//cout << "Distancia: " << minDistance << endl;
-//
-//		//cout << "Generacion " << generation << endl;
-//		selectParents();
-//		crossover();
-//		mutation();
-//		localSearch();
-//		replacement();
-//		generation++;
-//	}
-//	printBest();
+	initDI();
+	int generation = 0;
+	while(true){//Infinitas generaciones
+		int minDistance = INT_MAX;
+		for (int i = 0; i < population.size(); i++){
+			for (int j = i + 1; j < population.size(); j++){
+				minDistance = min(minDistance, population[i]->getDistance(*(population[j])));
+			}
+		}
+		//cout << "Distancia: " << minDistance << endl;
+
+		//cout << "Generacion " << generation << endl;
+		selectParents();
+		crossover();
+		mutation();
+		localSearch();
+		replacement();
+		generation++;
+	}
+	printBest();
 }
 

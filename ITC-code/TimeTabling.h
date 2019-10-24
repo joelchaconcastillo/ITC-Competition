@@ -27,6 +27,8 @@ using namespace std;
 #define DIFFERENTWEEKS 21
 #define DIFFERENTROOM 22
 #define NOTOVERLAP 23
+#define UNSET -1 //this indicates that a variable is not assigned
+#define NOT_CHECK -2 //this indicates that a variable its OK 
 
 void printBest();
 
@@ -63,8 +65,8 @@ class TimeTablingProblem{
                  int limit;
                  //vector<Time> times;
 		 vector<int > times;
-                 unordered_map <int, int>  p_room_penalty; // penality to asign room <id_room, penalty>
-		 vector<pair<int, int> > rooms_c;
+                 unordered_map <int, int>  p_room_penalty; // penalty to asign room <id_room, penalty>
+		 vector<pair<int, int> > rooms_c; // id room and penalty
                  bool rooms; // a class could have an unset room ...
               };
 		TimeTablingProblem(string file);
@@ -86,10 +88,12 @@ class TimeTablingProblem{
 		vector <Class> classes;
 		vector <Distribution> distributions;
 		vector < vector <int> > students; //to courses..
-		/////distributions...
-		unordered_map<int, vector<int> > distributions_by_type; //the key is the type
+		/////distributions///////////////////////////////////////////////
+		unordered_map<int, vector<int> > distributions_by_type; //the key is the type of distribution
 		vector<int> hard_distributions, soft_distributions; //relation to feasibility
+		vector<int> pair_hard_distributions, pair_soft_distributions, all_hard_distributions, all_soft_distributions; //relation to feasibility
 		vector<int> pair_comparison_distributions, all_comparison_distributions;
+		vector< vector<int> > distributions_by_class;
 
 		unordered_map<int, unordered_map< bool, vector<int> > > distributions_by_feasibility;
 };
@@ -100,18 +104,23 @@ class Individual{
 		  x_var_time.resize(TTP->classes.size(), -1);
 		  x_var_room.resize(TTP->classes.size(), -1);
 		  x_var_student.resize(TTP->students.size());
-//		  x_var.resize((this->TTP->classes.size()-1)*2); // id_time and id_room corresponding to each class...
+		  // exit(0);
+		  //initialization....
+		  initialization();
 		  //Load example solution to check the evaluator...
-                  loading_example(); // solution-wbg-fal10.xml ...
-		   save_xml(*(this));
-		 exit(0);
+		// cout << "Feasible space (Domain size) by room.... in this individual " << get_var_room_size() <<endl;
+		 //cout << "Feasible space (Domain size) by time.... in this individual " << get_var_time_size() <<endl;
+                  //loading_example(); // solution-wbg-fal10.xml ...
+		  //cout << this->calculateFitness().first<<endl;
+		//   save_xml();
 		}
 		Individual(){}
 		~Individual(){
 		}
 //	        inline int first(long long int bin){ int pos =0; while( !(bin & (1<<pos)) )pos++; return pos;  }		
 		void loading_example();
-		void save_xml(Individual &indiv);
+		void save_xml();
+		void initialization();
 		long long penalize_pair( int id_class_i, int id_class_j, int id_distribution);
 		long long penalize_overall( int id_distribution);
 		bool conflicts_student(int id_student);
@@ -119,8 +128,10 @@ class Individual{
 		void Mutation(double pm);
 		void Crossover(Individual &ind);
 		void localSearch();
-		long long calculateFitness();
+		pair<long long, int> calculateFitness();
 		void print();
+		long long int get_var_time_size();
+		long long int get_var_room_size();
 		long long fitness;
 		//static TimeTablingProblem *TimeTablingproblem;
 		TimeTablingProblem *TTP;
