@@ -5,7 +5,8 @@ int main(int argc, char **argv){
 	double pc = 0.9;
 	double pm = 0.01;
 	double finalTime = 25 * 60;
-	srand(time(NULL));
+	//srand(time(NULL));
+	srand(1);
 
 	///string file = string(argv[1]);
 	string file = "Instances/public/iku-fal17.xml";
@@ -23,7 +24,8 @@ int main(int argc, char **argv){
 	//
 	///Temporal para probar la busqueda local...
 	  Individual indiv(TTP);
-	  cout << indiv.calculateFitness().first <<endl;
-	  cout << indiv.calculateFitness().second <<endl;
+	  pair<long long, int > p = indiv.calculateFitness();
+	  return 0;
+	  cout <<  p.first<< " " <<  p.second<<endl;
 	  indiv.save_xml();
 }

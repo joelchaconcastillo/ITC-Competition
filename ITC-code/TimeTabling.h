@@ -27,7 +27,7 @@ using namespace std;
 #define DIFFERENTWEEKS 21
 #define DIFFERENTROOM 22
 #define NOTOVERLAP 23
-#define UNSET -1 //this indicates that a variable is not assigned
+#define NOT_SET -1 //this indicates that a variable room is not assigned
 #define NOT_CHECK -2 //this indicates that a variable its OK 
 
 void printBest();
