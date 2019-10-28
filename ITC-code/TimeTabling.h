@@ -1,5 +1,5 @@
-#ifndef __STEINER_TREE_H__
-#define __STEINER_TREE_H__
+#ifndef __TIME_TABLING_PROBLEM_H__
+#define __TIME_TABLING_PROBLEM_H__
 #include <bits/stdc++.h>
 using namespace std;
 #define FOREACH(i, v) for (__typeof((v).begin()) i = (v).begin(); i != (v).end(); i++)
@@ -27,6 +27,7 @@ using namespace std;
 #define DIFFERENTWEEKS 21
 #define DIFFERENTROOM 22
 #define NOTOVERLAP 23
+#define ROOM_OVERLAP 24
 #define NOT_SET -1 //this indicates that a variable room is not assigned
 #define NOT_CHECK -2 //this indicates that a variable its OK 
 
@@ -56,7 +57,8 @@ class TimeTablingProblem{
                  bool required;
                  long long int penalty;
 		 int S, G, D, R, M; //slots over S, gaps, daysover D, breaks over R, blocks over M
-                 vector<int> classes; //classes with this kind of constrint.
+                 vector<int> classes; //classes with this kind of constrain.
+		 unordered_map<int, int> order_classes; // id , order for Precedence distribution
 		 bool pair;
               };
               struct Class
@@ -74,6 +76,76 @@ class TimeTablingProblem{
 		}
 		void Load(string file);
 		void Parsing_type(const char *, Distribution &str_distribution);
+
+
+		long long penalize_pair( int id_class_i, int id_class_j, int id_distribution);
+		long long penalize_overall( int id_distribution);
+		bool conflicts_student(int id_student);
+
+		int implicit_room_constraints(vector<int> &x_var_time_, vector<int> &x_var_room_, vector<vector<int>> &Graph_Hard_Constraints, vector<bool> &grid);
+//		int hard_constraints_by_pairs(vector<int> &x_var_time_, vector<int> &x_var_room_, vector<vector<int>> &Graph_Hard_Constraints);
+		int hard_constraints_by_pairs(vector<int> &x_var_time_, vector<int> &x_var_room_,  vector<vector<int> > &Graph_Hard_Constraints, vector<bool> &grid2);
+		long long soft_constraints_by_pairs(vector<int> &x_var_time_, vector<int> &x_var_room_,  vector<bool>  &assigned);
+
+
+		inline bool SameStart(Time &C_ti, Time &C_tj){return (C_ti.start == C_tj.start); }
+		inline bool SameTime(Time &C_ti, Time &C_tj){return ( (C_ti.start <= C_tj.start && C_tj.end <= C_ti.end) || (C_tj.start <= C_ti.start && C_ti.end <= C_tj.end) ) ; }
+		inline bool DifferentTime(Time &C_ti, Time &C_tj){return ((C_ti.end <= C_tj.start )  || (C_tj.end <= C_ti.start)  );}
+		inline bool SameDays(Time &C_ti, Time &C_tj){return (((C_ti.days | C_tj.days) == C_ti.days)  || ((C_ti.days | C_tj.days) == C_tj.days) ); }
+		inline bool DifferentDays(Time &C_ti, Time &C_tj){return ( (C_ti.days & C_tj.days) == 0); }
+		inline bool SameWeeks(Time &C_ti, Time &C_tj){return  ( ((C_ti.weeks | C_tj.weeks) == C_ti.weeks)  || ((C_ti.weeks | C_tj.weeks) == C_tj.weeks) ); }
+		inline bool DifferentWeeks(Time &C_ti, Time &C_tj){return  ((C_ti.weeks & C_tj.weeks) == 0); }
+		inline bool Overlap(Time &C_ti, Time &C_tj){return  ( (C_tj.start < C_ti.end) && (C_ti.start < C_tj.end) && ( (C_ti.days & C_tj.days)!=0 && (C_ti.weeks & C_tj.weeks) != 0 ) ); }
+		inline bool NotOverlap(Time &C_ti, Time &C_tj){return ((C_ti.end <= C_tj.start) || (C_tj.end <= C_ti.start) || ( ((C_ti.days & C_tj.days)==0) || ((C_ti.weeks & C_tj.weeks) == 0) ) ); }
+		inline bool SameRoom(int id_room_i, int id_room_j){  return ( id_room_i == id_room_j);}
+		inline bool DifferentRoom(int id_room_i, int id_room_j){  return ( id_room_i != id_room_j);}
+		inline bool SameAttendees(Time &C_ti, Time &C_tj, int id_room_i, int id_room_j)
+		{
+//			if( id_room_i == NOT_SET || id_room_j==NOT_SET) return true;
+			int  traveling_time_i_j = (id_room_i==NOT_SET)?0:rooms[id_room_i].time_travel_to_room[id_room_j];
+			int  traveling_time_j_i = (id_room_j==NOT_SET)?0:rooms[id_room_j].time_travel_to_room[id_room_i];
+			bool c1 = (C_ti.end + traveling_time_i_j ) <= C_tj.start ;
+			bool c2 = (C_tj.end + traveling_time_j_i) <= C_ti.start ;
+        		bool c3 = ((C_ti.days & C_tj.days)==0);
+			bool c4 = ((C_ti.weeks & C_tj.weeks)==0);
+//			cout << C_ti.start << " " << C_tj.start <<" " << C_ti.end << " " << C_tj.end <<" " << traveling_time_i_j << " " <<traveling_time_j_i <<endl;
+//			cout << c1 << c2<<c3<<c4<<endl;
+			return (c1 || c2 || c3 || c4   );
+		}
+		inline bool Precedence(Time &C_ti, Time &C_tj)
+		{
+			bool c1 = nrWeeks-ffsll(C_ti.weeks) < nrWeeks-ffsll(C_tj.weeks);
+		        bool c2 = ffsll(C_ti.weeks) == ffsll(C_tj.weeks);
+		        bool c3 = nrDays-ffsll(C_ti.days) < nrDays-ffsll(C_tj.days);
+		        bool c4 = ffsll(C_ti.days) == ffsll(C_tj.days);
+		        bool c5 = C_ti.end <= C_tj.start;
+		        return ( c1 || ( c2 && ( c3 || ( c4 && c5  )  ) ) );
+		}
+		inline bool WorkDay(Time &C_ti, Time &C_tj, int S)
+	        {
+		        bool c1 = ( (C_ti.days & C_tj.days) == 0);
+		        bool c2 = ( (C_ti.weeks & C_tj.weeks) == 0);
+		        bool c3 = ( (max(C_ti.end, C_tj.end) - min(C_ti.start, C_tj.start)) <= S );
+		        return ( c1 || c2 || c3);
+		}
+		inline bool MinGap(Time &C_ti, Time &C_tj, int G)
+		{
+		        bool c1 = ( (C_ti.days & C_tj.days)==0 );
+		        bool c2 = ( (C_ti.weeks & C_tj.weeks)==0 );
+		        bool c3 = ( (C_ti.end + G) <= C_tj.start  );
+		        bool c4 = ( (C_tj.end + G) <= C_ti.start  );
+			return ( c1 || c2 || c3 || c4);
+		}
+
+
+
+	//	long long int get_var_time_size();
+	//	long long int get_var_room_size();
+		void loading_example();
+		void save_xml(vector<int> &x_var_room, vector<int> &x_var_time, vector< vector<int> > &x_var_student);
+
+
+
 		///problem information header
 		int nrDays, slotsPerDay, nrWeeks;
 		string name;
@@ -96,48 +168,8 @@ class TimeTablingProblem{
 		vector< vector<int> > distributions_by_class;
 
 		unordered_map<int, unordered_map< bool, vector<int> > > distributions_by_feasibility;
-};
-class Individual{
-	public:
-		Individual(TimeTablingProblem &TTP_){
-		  this->TTP= &TTP_;
-		  x_var_time.resize(TTP->classes.size(), -1);
-		  x_var_room.resize(TTP->classes.size(), -1);
-		  x_var_student.resize(TTP->students.size());
-		  // exit(0);
-		  //initialization....
-		  initialization();
-		  //Load example solution to check the evaluator...
-		// cout << "Feasible space (Domain size) by room.... in this individual " << get_var_room_size() <<endl;
-		 //cout << "Feasible space (Domain size) by time.... in this individual " << get_var_time_size() <<endl;
-                  //loading_example(); // solution-wbg-fal10.xml ...
-		  //cout << this->calculateFitness().first<<endl;
-		//   save_xml();
-		}
-		Individual(){}
-		~Individual(){
-		}
-//	        inline int first(long long int bin){ int pos =0; while( !(bin & (1<<pos)) )pos++; return pos;  }		
-		void loading_example();
-		void save_xml();
-		void initialization();
-		long long penalize_pair( int id_class_i, int id_class_j, int id_distribution);
-		long long penalize_overall( int id_distribution);
-		bool conflicts_student(int id_student);
-		int getDistance(Individual &ind);
-		void Mutation(double pm);
-		void Crossover(Individual &ind);
-		void localSearch();
-		pair<long long, int> calculateFitness();
-		void print();
-		long long int get_var_time_size();
-		long long int get_var_room_size();
-		long long fitness;
-		//static TimeTablingProblem *TimeTablingproblem;
-		TimeTablingProblem *TTP;
- 		int dist;
-		vector<int> x_var_time, x_var_room;
+	        vector<int> x_var_time, x_var_room;
 		vector< vector<int> > x_var_student;
-};
 
+};
 #endif

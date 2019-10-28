@@ -9,12 +9,11 @@ int main(int argc, char **argv){
 	srand(1);
 
 	///string file = string(argv[1]);
-	string file = "Instances/public/iku-fal17.xml";
+//	string file = "Instances/public/iku-fal17.xml";
 //	string file = "Instances/public/wbg-fal10.xml";
-//	string file = "Instances/public/tg-fal17.xml";
-	//string file = "Instances/public/yach-fal17.xml";
+	string file = "Instances/public/tg-fal17.xml";
 	//string file = "Instances/public/agh-fis-spr17.xml";
-	//string file = "Instances/public/muni-pdf-spr16.xml";
+//	string file = "Instances/public/muni-pdf-spr16.xml";
 	//string file = "Instances/public/yach-fal17.xml";
 	
 
@@ -25,7 +24,7 @@ int main(int argc, char **argv){
 	///Temporal para probar la busqueda local...
 	  Individual indiv(TTP);
 	  pair<long long, int > p = indiv.calculateFitness();
-	  return 0;
 	  cout <<  p.first<< " " <<  p.second<<endl;
-	  indiv.save_xml();
+          TTP.save_xml(indiv.x_var_room, indiv.x_var_time, indiv.x_var_student);
+	  return 0;
 }

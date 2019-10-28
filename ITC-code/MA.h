@@ -2,6 +2,7 @@
 #define __MA_H__
 
 #include "TimeTabling.h"
+#include "Individual.h"
 
 //struct Individual {
 //	TimeTabling ind;
