@@ -5,7 +5,7 @@ int main(int argc, char **argv){
 	double pc = 0.9;
 	double pm = 0.01;
 	double finalTime = 25 * 60;
-//      unsigned long l =  1572313214 ;//time(NULL);
+//      unsigned long l = 1572357183;//time(NULL);
       unsigned long l = time(NULL);
 	cout << l <<endl;
 	srand(l);
@@ -19,12 +19,12 @@ int main(int argc, char **argv){
 //	string file = "Instances/public/muni-pdf-spr16.xml";
 
 	//maxdayload
-	string file = "Instances/public/yach-fal17.xml";
-//	string file = "Instances/public/muni-pdf-spr16.xml";
+//	string file = "Instances/public/yach-fal17.xml";
+	string file = "Instances/public/muni-pdf-spr16.xml";
 	//string file = "Instances/public/agh-h-spr17.xml";
 	//string file = "Instances/public/bet-fal17.xml";
-//	string file = "Instances/public/muni-pdf-spr16c.xml";
-	//string file = "Instances/public/bet-fal17.xml";
+	//string file = "Instances/public/muni-pdf-spr16c.xml";
+//	string file = "Instances/public/bet-fal17.xml";
 	
 
 	TimeTablingProblem TTP(file);

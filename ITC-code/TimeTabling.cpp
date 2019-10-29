@@ -289,27 +289,16 @@ long long TimeTablingProblem::penalize_overall(int id_distribution, vector<vecto
   long long int totalpenalization = 0;
   if(dist.type == MAXDAYS)
   {
-     return 0;
      unsigned long int days = 0;
       
      for(int i = 0; i < dist.classes.size(); i++)
      {
         int id_class = dist.classes[i]; 
-//	if( x_var_time[id_class] == NOT_SET) continue;
-
         Time C_ti = times[x_var_time[id_class]];
            days |= C_ti.days;
      } 
      int nonzerobits = __builtin_popcountll(days);
-     if( !( nonzerobits <= dist.D) && dist.required )
-     {
-        for(int i = 0; i < dist.classes.size(); i++)
-	     {
-		int id_class = dist.classes[i]; 
-//		this->x_var_time[id_class] = NOT_SET;
-		x_var_room[id_class] = NOT_SET;
-	     }
-     }
+     
     //   return dist.penalty*(dist.D-nonzerobits);
        return dist.penalty*max(0, dist.D-nonzerobits);
   }
@@ -321,43 +310,19 @@ long long TimeTablingProblem::penalize_overall(int id_distribution, vector<vecto
         for(unsigned long int day_i = 0; day_i < nrDays; day_i++)
         {
 	  int day_load = 0;
-	  priority_queue<pair<int, int>> pq, pq2;
           for(int i = 0; i < dist.classes.size(); i++)
           {
              int id_class = dist.classes[i]; 
-		//if(invalid_variables[id_class]) continue;
+		if(invalid_variables[id_class])continue;
              Time C_ti = times[x_var_time[id_class]];
 	     bool c1 = (C_ti.days & (1<<day_i))!=0;
 	     bool c2 = (C_ti.weeks & (1<<week_i))!=0;
              if( c1 && c2  ) 
 	      {
 		day_load += C_ti.length;
-		pq.push(make_pair(C_ti.length, id_class));
 	      }
           }
-//	cout << endl;
-///	  if( (day_load > dist.S)  && dist.required)
-///		{
-///		pq2=pq;
-///		while( day_load > dist.S && !pq.empty())
-///		{
-///		  if(invalid_variables[pq.top().second])
-///		   {
-///		   day_load -= pq.top().first;
-///		   invalid_variables[pq.top().second] = true;
-///		   }
-///		   pq.pop();
-///		}
-///
-///		while( day_load > dist.S && !pq.empty())
-///		{
-///		   day_load -= pq.top().first;
-///		   invalid_variables[pq.top().second] = true;
-///		   pq.pop();
-///		}
-///
-///		}
-	
+
 	  TotalDayLoad += max(0, day_load-dist.S);
 	}
      }
@@ -365,7 +330,6 @@ long long TimeTablingProblem::penalize_overall(int id_distribution, vector<vecto
   }
   else if( dist.type == MAXBREAKS)
   {
-     return 0;
      int Totalbreaks = 0;
      for(int week_i = 0; week_i < nrWeeks; week_i++)
      { 
@@ -375,12 +339,12 @@ long long TimeTablingProblem::penalize_overall(int id_distribution, vector<vecto
           for(int i = 0; i < dist.classes.size(); i++)
           {
              int id_class = dist.classes[i]; 
-	     if( x_var_time[id_class] == NOT_SET) continue;
              TimeTablingProblem::Time C_ti = times[x_var_time[id_class]];
 	     bool c1 = (C_ti.days & (1<<day_i))!=0;
 	     bool c2 = (C_ti.weeks & (1<<week_i))!=0;
              if( c1 && c2  ) pq.push(make_pair(-C_ti.start, C_ti.end));
           }
+	  if(pq.empty()) continue;
 	  int NBreaks = 0; 
 	  int Block_start = -pq.top().first, Block_end = pq.top().second;
 	  pq.pop();
@@ -389,74 +353,69 @@ long long TimeTablingProblem::penalize_overall(int id_distribution, vector<vecto
 	     int current_start = -pq.top().first;
 	     int current_end = pq.top().second;
 	     pq.pop();
-	     if( !(Block_end + dist.S > current_start ) ) //is the same than (Block_end + dist.S <= current_start )
-	     {
+	     if( Block_end + dist.S <= current_start ) //is the same than (Block_end + dist.S <= current_start )
 		NBreaks++;
-	     }
 	     Block_end = current_end;
-	  }
-	  if( NBreaks > dist.R+1 && dist.required )
-	  {
-
-          for(int i = 0; i < dist.classes.size(); i++)
-	  {
-             int id_class = dist.classes[i]; 
-//	     this->x_var_time[id_class] = NOT_SET;
-	     x_var_room[id_class] = NOT_SET;
-	  }
 	  }
 	  Totalbreaks += max(0, NBreaks-dist.R+1);
 	}
      }
-    return Totalbreaks/nrWeeks;
+    return (Totalbreaks*dist.penalty)/nrWeeks;
   }
   else if( dist.type == MAXBLOCK)
   {
-     return 0;
      int TotalBlocksOver = 0;
-     for(int week_i = 0; week_i < nrWeeks; week_i++)
+     for(unsigned long int week_i = 0; week_i < nrWeeks; week_i++)
      { 
-        for(int day_i = 0; day_i < nrDays; day_i++)
+	//cout <<endl;
+        for(unsigned long int day_i = 0; day_i < nrDays; day_i++)
         {
-	  priority_queue< pair<int, int > > pq; ///kind of pre-sort by starts and ends..
+	  priority_queue< pair<int, int > > pq; /// pre-sort by starts and ends..
           for(int i = 0; i < dist.classes.size(); i++)
           {
              int id_class = dist.classes[i]; 
-	     if( x_var_time[id_class] == NOT_SET) continue;
+	    if(invalid_variables[id_class])continue;
+
              Time C_ti = times[x_var_time[id_class]];
 	     bool c1 = (C_ti.days & (1<<day_i))!=0;
 	     bool c2 = (C_ti.weeks & (1<<week_i))!=0;
-             if( c1 && c2  ) pq.push(make_pair(-C_ti.start, C_ti.end));
+             if( c1 && c2  ){
+		 pq.push(make_pair(-C_ti.start, C_ti.end));
+	//	cout << id_class +1<< " ";
+		}
+	    
           }
+	  if(pq.empty()) continue;
+	  if(pq.size()==1) continue;
 	  int Block_start = -pq.top().first, Block_end = pq.top().second;
 	  int lengthBlock = Block_end-Block_start;
 	  pq.pop();
+	  int Nclasses_by_block = 1;
 	  while(!pq.empty())
 	  {
 	     int current_start = -pq.top().first;
 	     int current_end = pq.top().second;
 	     pq.pop();
-	     if( !(Block_end + dist.S > current_start ) ) //is the same than (Block_end + dist.S <= current_start )
+	     if(Block_end + dist.S < current_start ) //is the same than (Block_end + dist.S <= current_start )
 	     {
-		lengthBlock = Block_end - Block_start;	
-		if(lengthBlock > dist.M) TotalBlocksOver++;
-		Block_start = current_start;
+	        lengthBlock = Block_end - Block_start;	
+	        if(lengthBlock > dist.M && Nclasses_by_block>1) TotalBlocksOver++;
+	        Block_start = current_start;
+
+		Nclasses_by_block=1;
 	     }
 	     Block_end = current_end;
+	     Nclasses_by_block++;
 	  }
+	  lengthBlock = Block_end - Block_start;	
+	  if(lengthBlock > dist.M && Nclasses_by_block>1) TotalBlocksOver++;
+
+
+
 	}
      }
-	if( TotalBlocksOver > 0 && dist.required)
-	  {
-
-          for(int i = 0; i < dist.classes.size(); i++)
-	  {
-             int id_class = dist.classes[i]; 
-//	     this->x_var_time[id_class] = NOT_SET;
-	     x_var_room[id_class] = NOT_SET;
-	  }
-	  }
-     return TotalBlocksOver*dist.penalty/nrWeeks;
+//	cout << (TotalBlocksOver*dist.penalty)/nrWeeks <<endl;
+     return (TotalBlocksOver*dist.penalty)/nrWeeks;
   }
   return 0;
 }
@@ -779,6 +738,7 @@ int TimeTablingProblem::hard_constraints_by_pairs(vector<int> &x_var_time_, vect
 	   int id_distribution = distributions_by_class[i][d];
            Distribution distribution_k = distributions[id_distribution];
 	   if(! distribution_k.required) continue;
+	   if( !distribution_k.pair) continue;
 	   for(int j = 0; j < distribution_k.classes.size(); j++)
 	   {
 	        int id_class = distribution_k.classes[j];
@@ -804,6 +764,9 @@ int TimeTablingProblem::overall_hard_constraints(vector<int> &x_var_time_, vecto
     for(int k = 0; k < all_hard_distributions.size(); k++)
     {
 	 Distribution distribution_k = distributions[all_hard_distributions[k]];
+	if(!distribution_k.required)continue;
+	if(distribution_k.pair)continue;
+
 	 int isviolated = penalize_overall(all_hard_distributions[k],  Graph_Hard_Constraints, invalid_variables); 
 	if(isviolated) 
 	{
@@ -823,18 +786,20 @@ int TimeTablingProblem::overall_soft_constraints(vector<int> &x_var_time_, vecto
     for(int k = 0; k < all_soft_distributions.size(); k++)
     {
 	 Distribution distribution_k = distributions[all_soft_distributions[k]];
+	if(distribution_k.required)continue;
+	if(distribution_k.pair)continue;
 	 int isviolated = penalize_overall(all_soft_distributions[k], Graph_Hard_Constraints, invalid_variables); 
 	cont += isviolated;
+//	cout << "isvio " <<isviolated << " " <<distribution_k.type <<endl;
     }
+	cout <<"°°°° "<<cont<<endl;
     return cont;
 }
 
 long long TimeTablingProblem::soft_constraints_by_pairs(vector<int> &x_var_time_, vector<int> &x_var_room_,  vector<bool> &assigned)
 {
-    this->x_var_time = x_var_time_;
-    this->x_var_room = x_var_room_;
+  long long distribution_soft_penalizations  = 0;
 
-long long distribution_soft_penalizations  = 0;
   for(int k = 0; k < pair_soft_distributions.size(); k++)
   {
      Distribution distribution_k = distributions[ pair_soft_distributions[k]];
@@ -846,10 +811,39 @@ long long distribution_soft_penalizations  = 0;
 	   int id_class_j = distribution_k.classes[j];
 	   if(assigned[id_class_i] || assigned[id_class_j]) continue;
 	   long long current_value = penalize_pair(id_class_i, id_class_j, pair_soft_distributions[k]);
+         if(current_value) 
+	 {
+	//	  cout << id_class_i+1 << "  "<<id_class_j +1<<" "<<current_value<< " " <<distribution_k.type <<endl;
+
 	   distribution_soft_penalizations +=  current_value;
+	  }
+	//	cout << distribution_soft_penalizations <<endl;
 	}	
      }
   }
 
    return distribution_soft_penalizations;
+}
+long long TimeTablingProblem::room_penalization(vector< int> &x_var_room_, vector<bool> &invalid_variables)
+{
+   x_var_room = x_var_room_;
+   
+  long long room_penalization_v = 0;
+for(int i = 0; i < classes.size(); i++)
+  {
+	if( invalid_variables[i]) continue;
+     room_penalization_v += classes[i].p_room_penalty[x_var_room[i]];
+  }
+  return room_penalization_v;
+}
+long long TimeTablingProblem::time_penalization(vector<int> &x_var_time_, vector<bool> &invalid_variables)
+{
+  x_var_time = x_var_time_;
+  long long time_penalization_v =0;
+  for(int i = 0; i < x_var_time.size(); i++)
+  {
+     if( invalid_variables[i] )    continue;
+     time_penalization_v += times[x_var_time[i]].penalty;
+  }
+  return time_penalization_v;
 }

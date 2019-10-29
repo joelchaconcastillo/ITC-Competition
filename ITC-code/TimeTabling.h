@@ -94,6 +94,12 @@ class TimeTablingProblem{
 		long long soft_constraints_by_pairs(vector<int> &x_var_time_, vector<int> &x_var_room_,  vector<bool>  &assigned);
 
 
+
+		long long time_penalization(vector<int> &x_var_time_, vector<bool> &invalid_variables);
+
+		long long room_penalization(vector< int> &x_var_room_, vector<bool> &invalid_variables);
+
+
 		inline bool SameStart(Time &C_ti, Time &C_tj){return (C_ti.start == C_tj.start); }
 		inline bool SameTime(Time &C_ti, Time &C_tj){return ( (C_ti.start <= C_tj.start && C_tj.end <= C_ti.end) || (C_tj.start <= C_ti.start && C_ti.end <= C_tj.end) ) ; }
 		inline bool DifferentTime(Time &C_ti, Time &C_tj){return ((C_ti.end <= C_tj.start )  || (C_tj.end <= C_ti.start)  );}

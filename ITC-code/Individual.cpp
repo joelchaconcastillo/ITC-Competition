@@ -61,37 +61,15 @@ int cont = 0;
 	cout <<"soft "<< distribution_soft_penalizations <<endl;
 ///  ///Checking distributions between pair classes..
 
-///  ///Checking overall distributions...
-/// for(int k = 0; k < this->TTP->all_soft_distributions.size(); k++)
-///  {
-///     distribution_soft_penalizations += penalize_overall(this->TTP->all_soft_distributions[k]);
-///  }
-///
-///
 ///  ///Checking room penalizations..
 ///  int assigned_variables = 0;
-  long long room_penalization = 0;
-///  vector<bool> checked(this->x_var_time.size(), false);
-  for(int i = 0; i < this->x_var_room.size(); i++)
-  {
-	if( invalid_variables[i]) continue;
-     room_penalization += this->TTP->classes[i].p_room_penalty[this->x_var_room[i]];
-//    if( this->TTP->classes[i].p_room_penalty[this->x_var_room[i]] )
-//     cout << "C"<< i+1 << " " << this->TTP->classes[i].p_room_penalty[this->x_var_room[i]] <<endl;
-  }
-cout << "room " << room_penalization <<endl;
+  long long room_penalization_v = TTP->room_penalization(x_var_room, invalid_variables);
+    cout << "room " << room_penalization_v <<endl;
 ///
 ///
-    long long time_penalization = 0;
-  for(int i = 0; i < this->x_var_time.size(); i++)
-  {
-     if( invalid_variables[i] ) 
-	     continue;
-	     long long value = this->TTP->times[this->x_var_time[i]].penalty;
-//	     if(value > 0) cout << i+1 << " " << value <<endl;
-     time_penalization += value;
-  }
-cout << "time" << " " <<time_penalization <<endl;
+    long long time_penalization_v = TTP->time_penalization(x_var_time, invalid_variables);
+  
+cout << "time" << " " <<time_penalization_v <<endl;
 ///    long long student_penalization = 0; //check student conflicts...
 ///  for(int i = 0; i < this->x_var_student.size(); i++)
 ///  {
