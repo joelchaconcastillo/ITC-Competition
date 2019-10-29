@@ -5,9 +5,10 @@ int main(int argc, char **argv){
 	double pc = 0.9;
 	double pm = 0.01;
 	double finalTime = 25 * 60;
-//      unsigned long l = 1572372098;//   1572370994;  //1572357183;//time(NULL);
-      //unsigned long l =    1572370994;  //1572357183;//time(NULL);
-      unsigned long l = time(NULL);
+	unsigned long l = 1572386715;
+	l = 1572386933;
+      l = time(NULL);
+//	l = 1572389008;
 	cout << l <<endl;
 	srand(l);
 	//srand(1);

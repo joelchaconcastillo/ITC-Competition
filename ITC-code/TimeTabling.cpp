@@ -369,84 +369,82 @@ long long TimeTablingProblem::penalize_overall(int id_distribution, vector<vecto
      int TotalBlocksOver = 0;
      for(unsigned long int week_i = 0; week_i < nrWeeks; week_i++)
      { 
-	if(dist.required)
-	cout <<endl;
-
         for(unsigned long int day_i = 0; day_i < nrDays; day_i++)
         {
 	  priority_queue< pair<int, pair<int, int> > > pq; /// pre-sort by starts and ends..
+	  unordered_map<int, int> order_distribution;
+	   int cont = 0;
           for(int i = 0; i < dist.classes.size(); i++)
           {
              int id_class = dist.classes[i]; 
 	    if(invalid_variables[id_class])continue;
-
              Time C_ti = times[x_var_time[id_class]];
 	     bool c1 = (C_ti.days & (1<<day_i))!=0;
 	     bool c2 = (C_ti.weeks & (1<<week_i))!=0;
-             if( c1 && c2  ){
+             if( c1 && c2  )
+	     {
+		 order_distribution[id_class] = cont++;	
 		 pq.push(make_pair(-C_ti.start, make_pair(C_ti.end, id_class)));
-		if(dist.required)
-		cout << id_class+1 << "|"<<C_ti.end-C_ti.start<< "|"<<C_ti.start<< "|"<<C_ti.end<<" ";
-		}
-	    
+	     }
           }
-		cout << endl;
 	  if(pq.empty()) continue;
-	  if(pq.size()==1) continue;
-	  int Block_start = -pq.top().first, Block_end = pq.top().second.first;
-	  int lengthBlock = Block_end-Block_start;
-	     int id_class = pq.top().second.second;
-		cout << id_class +1<<"|| ";
-	  pq.pop();
-	  int Nclasses_by_block = 1;
-		if(dist.required)
-		cout << Block_end - Block_start << "  ";
 
-	  while(!pq.empty())
+         vector<int> block, start_b, end_b;
+	 vector <vector<int> > blocks;
+
+	  int Block_start = -pq.top().first, Block_end = pq.top().second.first;
+	  int id_class = pq.top().second.second;
+	  block.push_back(id_class);
+	  pq.pop();
+
+	  while(!pq.empty()) //building blocks by requirements..
 	  {
 	     int current_start = -pq.top().first;
 	     int current_end = pq.top().second.first;
 	     int id_class = pq.top().second.second;
-		cout << id_class +1<<"|| ";
 	     pq.pop();
-		if(dist.required)
-		{
-	           lengthBlock = current_end - Block_start+1;	
-		   if(lengthBlock > dist.M ) 
-		   {
-			cout << id_class+1<<" id << "<<endl;
-			invalid_variables[id_class] = true;	
-	        	current_end = Block_end;
-		   }
-		}
-
-	     if(Block_end + dist.S < current_start ) //is the same than (Block_end + dist.S <= current_start )
+	     if( Block_end + dist.S <current_start )
 	     {
-	        lengthBlock = Block_end - Block_start;	
-	        if(lengthBlock > dist.M && Nclasses_by_block>1) 
-		{
-		  TotalBlocksOver++;
-		}
-	        Block_start = current_start;
-
-		Nclasses_by_block=1;
+		blocks.push_back(block);
+		start_b.push_back(Block_start);
+		end_b.push_back(Block_end);
+		
+		block.clear();
+		Block_start = current_start;
 	     }
-	     
-		if(dist.required)
-		cout << Block_end - Block_start << "  ";
+	     block.push_back(id_class);
+
 	     Block_end = current_end;
-	     Nclasses_by_block++;
 	  }
-	  lengthBlock = Block_end - Block_start;	
-	  if(lengthBlock > dist.M && Nclasses_by_block>1) TotalBlocksOver++;
-		if(dist.required)
-		cout << Block_end - Block_start << "  ";
-
-
-
+	  if(!block.empty()){
+		 blocks.push_back(block);
+	 	 start_b.push_back(Block_start);
+		 end_b.push_back(Block_end);
 	}
-     }
-//	cout << (TotalBlocksOver*dist.penalty)/nrWeeks <<endl;
+
+            //checking size....
+            for(int i = 0; i < blocks.size(); i++)
+            {
+               if( (end_b[i] - start_b[i]  > dist.M)  && blocks[i].size() > 1)
+               {
+                  if( dist.required )
+                   {
+		      int maxid = -1, maxv=-10000;
+		      for(int j = 0; j < blocks[i].size(); j++)
+			{
+			   if(order_distribution[blocks[i][j]] > maxv)
+			   {
+				maxv = order_distribution[blocks[i][j]];
+				maxid = blocks[i][j];
+			   }
+			}
+		       invalid_variables[maxid] = true;
+                   }
+                  TotalBlocksOver++;   
+               }
+            }    
+        } //end days
+     } //end weeks
      return (TotalBlocksOver*dist.penalty)/nrWeeks;
   }
   return 0;

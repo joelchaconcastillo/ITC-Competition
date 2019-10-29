@@ -28,6 +28,7 @@ int cont = 0;
     hard_constraints_violated += TTP->hard_constraints_by_pairs(x_var_time, x_var_room, Graph_Hard_Constraints, invalid_variables);
 
 
+    hard_constraints_violated += TTP->overall_hard_constraints(x_var_time, x_var_room, Graph_Hard_Constraints, invalid_variables);
 
      int cont_unassigned_variables = 0;
     ////Summary of unavailable variables...
@@ -43,14 +44,13 @@ int cont = 0;
     }
 
 
-    hard_constraints_violated += TTP->overall_hard_constraints(x_var_time, x_var_room, Graph_Hard_Constraints, invalid_variables);
 
     for(int i = 0; i < x_var_time.size(); i++) //for each class
 	if(invalid_variables[i]) cont_unassigned_variables++;
     cout <<"unasigned " <<cont_unassigned_variables<<endl;
 
-    for(int i = 0; i < x_var_time.size(); i++) //for each class
-	if(invalid_variables[i]) cout << i+1 <<endl;
+//    for(int i = 0; i < x_var_time.size(); i++) //for each class
+//	if(invalid_variables[i]) cout << i+1 <<endl;
 
 
  long long distribution_soft_penalizations= 0;
