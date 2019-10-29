@@ -80,7 +80,7 @@ class TimeTablingProblem{
 
 		long long penalize_pair( int id_class_i, int id_class_j, int id_distribution);
 		long long penalize_overall( int id_distribution, vector<vector<int>>&Graph_Hard_Constraints, vector<bool> &invalid_variables);
-		bool conflicts_student(int id_student);
+		bool conflicts_student(int id_student, vector<int> &x_var_time_, vector<int> &x_var_room_);
 
 		int implicit_room_constraints(vector<int> &x_var_time_, vector<int> &x_var_room_, vector<vector<int>> &Graph_Hard_Constraints, vector<bool> &grid);
 //		int hard_constraints_by_pairs(vector<int> &x_var_time_, vector<int> &x_var_room_, vector<vector<int>> &Graph_Hard_Constraints);

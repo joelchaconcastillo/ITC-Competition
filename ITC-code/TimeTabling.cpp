@@ -260,8 +260,10 @@ void TimeTablingProblem::Parsing_type(const char *type_, Distribution &str_distr
 	}
    }
 }
-bool TimeTablingProblem::conflicts_student(int id_student)
+bool TimeTablingProblem::conflicts_student(int id_student, vector<int> &x_var_time_, vector<int> &x_var_room_)
 {
+   x_var_time = x_var_time_;
+   x_var_room = x_var_room_;
    vector<int> classes_by_student = x_var_student[id_student]; 
    for(int i = 0; i < classes_by_student.size(); i++) //checking each class...
    {
@@ -367,10 +369,12 @@ long long TimeTablingProblem::penalize_overall(int id_distribution, vector<vecto
      int TotalBlocksOver = 0;
      for(unsigned long int week_i = 0; week_i < nrWeeks; week_i++)
      { 
-	//cout <<endl;
+	if(dist.required)
+	cout <<endl;
+
         for(unsigned long int day_i = 0; day_i < nrDays; day_i++)
         {
-	  priority_queue< pair<int, int > > pq; /// pre-sort by starts and ends..
+	  priority_queue< pair<int, pair<int, int> > > pq; /// pre-sort by starts and ends..
           for(int i = 0; i < dist.classes.size(); i++)
           {
              int id_class = dist.classes[i]; 
@@ -380,35 +384,63 @@ long long TimeTablingProblem::penalize_overall(int id_distribution, vector<vecto
 	     bool c1 = (C_ti.days & (1<<day_i))!=0;
 	     bool c2 = (C_ti.weeks & (1<<week_i))!=0;
              if( c1 && c2  ){
-		 pq.push(make_pair(-C_ti.start, C_ti.end));
-	//	cout << id_class +1<< " ";
+		 pq.push(make_pair(-C_ti.start, make_pair(C_ti.end, id_class)));
+		if(dist.required)
+		cout << id_class+1 << "|"<<C_ti.end-C_ti.start<< "|"<<C_ti.start<< "|"<<C_ti.end<<" ";
 		}
 	    
           }
+		cout << endl;
 	  if(pq.empty()) continue;
 	  if(pq.size()==1) continue;
-	  int Block_start = -pq.top().first, Block_end = pq.top().second;
+	  int Block_start = -pq.top().first, Block_end = pq.top().second.first;
 	  int lengthBlock = Block_end-Block_start;
+	     int id_class = pq.top().second.second;
+		cout << id_class +1<<"|| ";
 	  pq.pop();
 	  int Nclasses_by_block = 1;
+		if(dist.required)
+		cout << Block_end - Block_start << "  ";
+
 	  while(!pq.empty())
 	  {
 	     int current_start = -pq.top().first;
-	     int current_end = pq.top().second;
+	     int current_end = pq.top().second.first;
+	     int id_class = pq.top().second.second;
+		cout << id_class +1<<"|| ";
 	     pq.pop();
+		if(dist.required)
+		{
+	           lengthBlock = current_end - Block_start+1;	
+		   if(lengthBlock > dist.M ) 
+		   {
+			cout << id_class+1<<" id << "<<endl;
+			invalid_variables[id_class] = true;	
+	        	current_end = Block_end;
+		   }
+		}
+
 	     if(Block_end + dist.S < current_start ) //is the same than (Block_end + dist.S <= current_start )
 	     {
 	        lengthBlock = Block_end - Block_start;	
-	        if(lengthBlock > dist.M && Nclasses_by_block>1) TotalBlocksOver++;
+	        if(lengthBlock > dist.M && Nclasses_by_block>1) 
+		{
+		  TotalBlocksOver++;
+		}
 	        Block_start = current_start;
 
 		Nclasses_by_block=1;
 	     }
+	     
+		if(dist.required)
+		cout << Block_end - Block_start << "  ";
 	     Block_end = current_end;
 	     Nclasses_by_block++;
 	  }
 	  lengthBlock = Block_end - Block_start;	
 	  if(lengthBlock > dist.M && Nclasses_by_block>1) TotalBlocksOver++;
+		if(dist.required)
+		cout << Block_end - Block_start << "  ";
 
 
 

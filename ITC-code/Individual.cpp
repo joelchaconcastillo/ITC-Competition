@@ -70,25 +70,20 @@ int cont = 0;
     long long time_penalization_v = TTP->time_penalization(x_var_time, invalid_variables);
   
 cout << "time" << " " <<time_penalization_v <<endl;
-///    long long student_penalization = 0; //check student conflicts...
-///  for(int i = 0; i < this->x_var_student.size(); i++)
-///  {
-///     if(conflicts_student(i))
-///      student_penalization++;
-///  }
-///  cout << "Variables assigned: " << assigned_variables <<endl;
+    long long student_penalization = 0; //check student conflicts...
+//  for(int i = 0; i < this->x_var_student.size(); i++)
+//  {
+//     if(TTP->conflicts_student(i,x_var_time, x_var_room ))
+//      student_penalization++;
+//  }
 ///
 ///  cout << "Total distributions penalty: " <<distribution_soft_penalizations <<endl;
 ///  cout << "Total room penalty: "<< room_penalization <<endl;//*this->TTP->room_w  <<endl;
 ///  cout << "Total time penalty: " << time_penalization*this->TTP->time_w <<endl;
 ///  cout << "Total student conflicts: " << student_penalization*this->TTP->student_w <<endl;
 ///
-///  return make_pair(distribution_soft_penalizations*this->TTP->distribution_w + room_penalization*this->TTP->room_w + time_penalization*this->TTP->time_w + student_penalization*this->TTP->student_w, cont_hard_distributions_violated);
+  return make_pair(distribution_soft_penalizations*this->TTP->distribution_w + room_penalization_v*this->TTP->room_w + time_penalization_v*this->TTP->time_w + student_penalization*this->TTP->student_w, cont_unassigned_variables);
 
-
-
-
- return make_pair(1,cont_unassigned_variables);
 }
 
 //Individual bestI;
