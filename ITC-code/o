@@ -1,311 +1,590 @@
-ERROR: C34: 3 conflicts detected for C34: T 11:20 - 14:45 w3 R1.
-ERROR: C37: 3 conflicts detected for C37: R 14:00 - 16:35 w7 R1.
-ERROR: C38: 2 conflicts detected for C38: R 14:00 - 16:35 w7 R1.
-ERROR: C40: 2 conflicts detected for C40: T 10:25 - 13:00 w9 R1.
-ERROR: C43: 3 conflicts detected for C43: R 11:20 - 14:45 w12 R1.
-ERROR: C46: 2 conflicts detected for C46: F 11:20 - 14:45 w1 R2.
-ERROR: C47: 1 conflicts detected for C47: T 10:25 - 13:00 w2 R2.
-ERROR: C49: 1 conflicts detected for C49: F 12:15 - 15:40 w4 R2.
-ERROR: C50: 2 conflicts detected for C50: T 12:15 - 15:40 w5 R2.
-ERROR: C52: 1 conflicts detected for C52: W 14:00 - 16:35 w7 R2.
-ERROR: C53: 1 conflicts detected for C53: T 14:00 - 16:35 w8 R2.
-ERROR: C55: Class 55 has no or invalid assignment.
-ERROR: C56: 1 conflicts detected for C56: F 11:20 - 14:45 w11 R2.
-ERROR: C58: 1 conflicts detected for C58: T 12:15 - 15:40 w13 R2.
-ERROR: C59: 2 conflicts detected for C59: F 14:00 - 16:35 w14 R2.
-ERROR: C63: 2 conflicts detected for C63: T 11:20 - 13:00 w4 R8.
-ERROR: C73: 3 conflicts detected for C73: R 11:20 - 13:00 w14 R5.
-ERROR: C74: Class 74 has no or invalid assignment.
-ERROR: C76: Class 76 has no or invalid assignment.
-ERROR: C78: Class 78 has no or invalid assignment.
-ERROR: C80: Class 80 has no or invalid assignment.
-ERROR: C81: Class 81 has no or invalid assignment.
-ERROR: C86: 1 conflicts detected for C86: F 10:25 - 12:05 w13 R7.
-ERROR: C88: 2 conflicts detected for C88: W 11:20 - 13:00 w1 R7.
-ERROR: C89: Class 89 has no or invalid assignment.
-ERROR: C92: Class 92 has no or invalid assignment.
-ERROR: C94: Class 94 has no or invalid assignment.
-ERROR: C96: Class 96 has no or invalid assignment.
-ERROR: C97: 1 conflicts detected for C97: R 14:00 - 15:40 w12 R7.
-ERROR: C98: 1 conflicts detected for C98: M 9:30 - 11:10 w7 R13.
-ERROR: C99: 2 conflicts detected for C99: F 14:00 - 15:40 w9 R17.
-ERROR: C132: 2 conflicts detected for C132: R 14:00 - 15:40 w6 R14.
-ERROR: C135: 2 conflicts detected for C135: T 14:55 - 16:35 w9 R4.
-ERROR: C136: 1 conflicts detected for C136: R 9:30 - 11:10 w10 R6.
-ERROR: C137: 2 conflicts detected for C137: T 12:15 - 14:45 w11 R2.
-ERROR: C145: 1 conflicts detected for C145: F 9:30 - 11:10 w8 R1.
-ERROR: C146: 1 conflicts detected for C146: F 10:25 - 12:05 w9 R7.
-ERROR: C149: 2 conflicts detected for C149: R 11:20 - 13:00 w12 R3.
-ERROR: C151: 1 conflicts detected for C151: T 14:55 - 16:35 w14 R4.
-ERROR: C160: 1 conflicts detected for C160: T 15:50 - 16:35 w11 R13.
-ERROR: C161: 1 conflicts detected for C161: T 15:50 - 16:35 w12 R13.
-ERROR: C168: 1 conflicts detected for C168: M 10:25 - 13:00 w4 R2.
-ERROR: C169: 1 conflicts detected for C169: M 12:15 - 15:40 w5 R7.
-ERROR: C170: 1 conflicts detected for C170: W 11:20 - 14:45 w6 R1.
-ERROR: C171: 2 conflicts detected for C171: F 12:15 - 15:40 w14 R1.
-ERROR: C172: 1 conflicts detected for C172: M 14:00 - 16:35 w9 R7.
-ERROR: C173: 1 conflicts detected for C173: W 14:00 - 16:35 w10 R6.
-ERROR: C175: 1 conflicts detected for C175: M 12:15 - 15:40 w12 R7.
-ERROR: C180: 1 conflicts detected for C180: M 10:25 - 12:05 w4 R17.
-ERROR: C182: 1 conflicts detected for C182: R 9:30 - 11:10 w6 R17.
-ERROR: C190: 1 conflicts detected for C190: T 9:30 - 12:30 w7 R2.
-ERROR: C191: Class 191 has no or invalid assignment.
-ERROR: C192: Class 192 has no or invalid assignment.
-ERROR: C193: 2 conflicts detected for C193: F 10:25 - 12:05 w1-5,8,11 R21.
-ERROR: C194: 2 conflicts detected for C194: F 9:30 - 12:05 w7,9,13-14 R21.
-ERROR: C198: 1 conflicts detected for C198: F 12:15 - 14:45 w4 R14.
-ERROR: C199: 1 conflicts detected for C199: W 14:00 - 15:40 w5 R14.
-ERROR: C204: 1 conflicts detected for C204: R 11:20 - 13:00 w10 R14.
-ERROR: C206: 2 conflicts detected for C206: R 10:25 - 12:05 w12 R14.
-ERROR: C207: 2 conflicts detected for C207: R 12:15 - 14:45 w13 R14.
-ERROR: C208: 1 conflicts detected for C208: R 10:25 - 12:05 w14 R14.
-ERROR: C212: 1 conflicts detected for C212: M 10:25 - 11:10 w4 R14.
-ERROR: C213: 1 conflicts detected for C213: R 12:15 - 13:00 w5 R14.
-ERROR: C216: 1 conflicts detected for C216: R 11:20 - 12:05 w8 R14.
-ERROR: C219: 2 conflicts detected for C219: W 12:15 - 13:00 w11 R14.
-ERROR: C223: 1 conflicts detected for C223: F 10:25 - 12:05 w1 R14.
-ERROR: C224: 1 conflicts detected for C224: M 12:15 - 14:45 w2 R14.
-ERROR: C228: 1 conflicts detected for C228: F 10:25 - 12:05 w6 R14.
-ERROR: C229: 1 conflicts detected for C229: F 11:20 - 13:00 w7 R14.
-ERROR: C233: 2 conflicts detected for C233: W 11:20 - 13:00 w11 R14.
-ERROR: C237: 2 conflicts detected for C237: M 11:20 - 13:00 w1 R6.
-ERROR: C240: 1 conflicts detected for C240: M 9:30 - 11:10 w4 R7.
-ERROR: C241: 1 conflicts detected for C241: R 14:00 - 15:40 w5 R8.
-ERROR: C243: Class 243 has no or invalid assignment.
-ERROR: C244: 1 conflicts detected for C244: F 14:55 - 16:35 w8 R5.
-ERROR: C246: Class 246 has no or invalid assignment.
-ERROR: C247: 2 conflicts detected for C247: R 14:00 - 15:40 w11 R4.
-ERROR: C248: Class 248 has no or invalid assignment.
-ERROR: C253: 1 conflicts detected for C253: M 12:15 - 14:45 w3 R5.
-ERROR: C254: 1 conflicts detected for C254: R 12:15 - 14:45 w4 R2.
-ERROR: C255: 2 conflicts detected for C255: T 14:00 - 15:40 w5 R5.
-ERROR: C258: 1 conflicts detected for C258: W 11:20 - 13:00 w8 R3.
-ERROR: C259: Class 259 has no or invalid assignment.
-ERROR: C263: Class 263 has no or invalid assignment.
-ERROR: C266: 1 conflicts detected for C266: T 11:20 - 13:00 w2 R4.
-ERROR: C267: 1 conflicts detected for C267: R 11:20 - 13:00 w4 R4.
-ERROR: C269: 1 conflicts detected for C269: W 11:20 - 13:00 w5 R4.
-ERROR: C270: 2 conflicts detected for C270: T 14:00 - 15:40 w6 R4.
-ERROR: C271: 3 conflicts detected for C271: T 10:25 - 12:05 w7 R4.
-ERROR: C273: 3 conflicts detected for C273: W 12:15 - 14:45 w9 R4.
-ERROR: C274: 1 conflicts detected for C274: F 14:00 - 15:40 w11 R14.
-ERROR: C276: 1 conflicts detected for C276: W 10:25 - 12:05 w12 R4.
-ERROR: C277: 1 conflicts detected for C277: M 14:00 - 15:40 w13 R4.
-ERROR: C280: 1 conflicts detected for C280: M 14:00 - 15:40 w2 R14.
-ERROR: C285: 2 conflicts detected for C285: T 9:30 - 11:10 w7 R14.
-ERROR: C289: 1 conflicts detected for C289: M 9:30 - 11:10 w12 R14.
-ERROR: C292: 1 conflicts detected for C292: F 9:30 - 11:10 w14 R14.
-ERROR: C293: 1 conflicts detected for C293: R 9:30 - 17:30 w1 R4.
-ERROR: C294: 2 conflicts detected for C294: F 9:30 - 12:30 w1 R4.
-ERROR: C299: 2 conflicts detected for C299: W 9:30 - 12:30 w5.
-ERROR: C304: Class 304 has no or invalid assignment.
-ERROR: C305: Class 305 has no or invalid assignment.
-ERROR: C306: Class 306 has no or invalid assignment.
-ERROR: C308: Class 308 has no or invalid assignment.
-ERROR: C309: 1 conflicts detected for C309: T 12:15 - 15:40 w1 R4.
-ERROR: C311: 1 conflicts detected for C311: F 11:20 - 14:45 w3 R4.
-ERROR: C313: 1 conflicts detected for C313: T 14:00 - 16:35 w5 R4.
-ERROR: C314: 3 conflicts detected for C314: M 11:20 - 14:45 w5 R4.
-ERROR: C316: 1 conflicts detected for C316: W 12:15 - 15:40 w12 R4.
-ERROR: C317: 4 conflicts detected for C317: W 11:20 - 14:45 w9 R4.
-ERROR: C318: 1 conflicts detected for C318: M 11:20 - 14:45 w12 R4.
-ERROR: C319: 1 conflicts detected for C319: W 9:30 - 12:05 w11 R4.
-ERROR: C320: 1 conflicts detected for C320: W 9:30 - 12:05 w10 R4.
-ERROR: C322: 2 conflicts detected for C322: M 9:30 - 12:05 w14 R4.
-ERROR: C323: 1 conflicts detected for C323: T 14:55 - 16:35 w1 R4.
-ERROR: C326: 2 conflicts detected for C326: M 12:15 - 14:45 w4 R4.
-ERROR: C327: 2 conflicts detected for C327: W 14:00 - 15:40 w5 R4.
-ERROR: C328: 2 conflicts detected for C328: W 14:55 - 16:35 w6 R4.
-ERROR: C329: 2 conflicts detected for C329: T 14:55 - 16:35 w7 R4.
-ERROR: C330: 3 conflicts detected for C330: T 10:25 - 12:05 w3 R4.
-ERROR: C331: 3 conflicts detected for C331: W 11:20 - 13:00 w9 R4.
-ERROR: C332: Class 332 has no or invalid assignment.
-ERROR: C333: 1 conflicts detected for C333: F 9:30 - 11:10 w11 R4.
-ERROR: C334: 1 conflicts detected for C334: F 14:55 - 16:35 w2 R4.
-ERROR: C336: 1 conflicts detected for C336: R 11:20 - 13:00 w14 R4.
-ERROR: C338: 1 conflicts detected for C338: T 14:55 - 16:35 w5 R5.
-ERROR: C340: 1 conflicts detected for C340: F 14:00 - 15:40 w7 R5.
-ERROR: C344: Class 344 has no or invalid assignment.
-ERROR: C356: 2 conflicts detected for C356: R 14:00 - 14:45 w12 R3.
-ERROR: C360: 1 conflicts detected for C360: W 11:20 - 13:00 w5 R4.
-ERROR: C366: 1 conflicts detected for C366: R 14:00 - 15:40 w11 R4.
-ERROR: C368: 1 conflicts detected for C368: W 10:25 - 12:05 w13 R3.
-ERROR: C371: 2 conflicts detected for C371: T 11:20 - 12:05 w7.
-ERROR: C372: 2 conflicts detected for C372: M 14:00 - 14:45 w5-6.
-ERROR: C373: 3 conflicts detected for C373: M 11:20 - 12:05 w8.
-ERROR: C375: 2 conflicts detected for C375: R 10:25 - 11:10 w11.
-ERROR: C380: 3 conflicts detected for C380: M 14:00 - 16:35 w2 R17.
-ERROR: C381: 1 conflicts detected for C381: T 11:20 - 14:45 w3 R17.
-ERROR: C382: 2 conflicts detected for C382: W 11:20 - 14:45 w4 R17.
-ERROR: C383: 2 conflicts detected for C383: T 12:15 - 15:40 w5 R17.
-ERROR: C385: 2 conflicts detected for C385: M 12:15 - 15:40 w7 R17.
-ERROR: C390: 3 conflicts detected for C390: F 12:15 - 15:40 w13 R1.
-ERROR: C391: 2 conflicts detected for C391: W 11:20 - 14:45 w13 R3.
-ERROR: C392: 2 conflicts detected for C392: M 10:25 - 13:00 w14 R6.
-ERROR: C393: 1 conflicts detected for C393: W 14:00 - 16:35 w2 R17.
-ERROR: C394: 1 conflicts detected for C394: M 12:15 - 15:40 w2 R17.
-ERROR: C395: 2 conflicts detected for C395: W 14:00 - 16:35 w3 R17.
-ERROR: C402: 1 conflicts detected for C402: R 10:25 - 13:00 w10 R17.
-ERROR: C404: 1 conflicts detected for C404: R 11:20 - 14:45 w12 R17.
-ERROR: C405: 1 conflicts detected for C405: W 9:30 - 12:05 w13 R17.
-ERROR: C406: 2 conflicts detected for C406: R 12:15 - 15:40 w14 R17.
-ERROR: C407: 3 conflicts detected for C407: R 9:30 - 15:40 w9 R8.
-ERROR: C408: 2 conflicts detected for C408: F 9:30 - 12:30 w9 R1.
-ERROR: C409: 1 conflicts detected for C409: W 14:00 - 16:35 w2 R4.
-ERROR: C411: 1 conflicts detected for C411: W 12:15 - 15:40 w4 R4.
-ERROR: C412: 1 conflicts detected for C412: W 14:00 - 16:35 w6 R4.
-ERROR: C413: 1 conflicts detected for C413: T 11:20 - 14:45 w7 R4.
-ERROR: C414: 2 conflicts detected for C414: R 10:25 - 13:00 w8 R4.
-ERROR: C415: 2 conflicts detected for C415: R 11:20 - 14:45 w11 R4.
-ERROR: C416: 1 conflicts detected for C416: R 12:15 - 15:40 w12 R4.
-ERROR: C418: 1 conflicts detected for C418: T 14:55 - 16:35 w13 R4.
-ERROR: C420: 1 conflicts detected for C420: R 11:20 - 13:00 w14 R4.
-ERROR: C421: 2 conflicts detected for C421: R 9:30 - 15:40 w10 R4.
-ERROR: C422: 2 conflicts detected for C422: F 9:30 - 12:30 w10 R4.
-ERROR: C423: 2 conflicts detected for C423: F 11:20 - 14:45 w10 R4.
-ERROR: C424: 1 conflicts detected for C424: T 14:00 - 16:35 w6 R4.
-ERROR: C426: 1 conflicts detected for C426: M 12:15 - 14:45 w14 R4.
-ERROR: C427: 1 conflicts detected for C427: F 12:15 - 14:45 w3 R4.
-ERROR: C429: 3 conflicts detected for C429: R 14:55 - 16:35 w7 R4.
-ERROR: C430: 3 conflicts detected for C430: R 12:15 - 14:45 w8 R4.
-ERROR: C433: 1 conflicts detected for C433: W 10:25 - 13:00 w2 R4.
-ERROR: C434: 2 conflicts detected for C434: R 14:00 - 16:35 w6 R4.
-ERROR: C435: 4 conflicts detected for C435: R 9:30 - 15:40 w6 R5.
-ERROR: C438: 3 conflicts detected for C438: F 9:30 - 15:40 w8 R5.
-ERROR: C439: 1 conflicts detected for C439: R 9:30 - 15:40 w10 R3.
-ERROR: C440: 2 conflicts detected for C440: F 9:30 - 15:40 w10 R3.
-ERROR: C444: 2 conflicts detected for C444: R 12:15 - 15:40 w7 R17.
-ERROR: C447: 3 conflicts detected for C447: M 11:20 - 14:45 w12 R17.
-ERROR: C450: 1 conflicts detected for C450: W 14:00 - 15:40 w8 R17.
-ERROR: C451: 2 conflicts detected for C451: T 14:00 - 15:40 w14 R17.
-ERROR: C452: 1 conflicts detected for C452: M 14:55 - 16:35 w11 R17.
-ERROR: C455: 1 conflicts detected for C455: W 9:30 - 11:10 w14 R17.
-ERROR: C457: 2 conflicts detected for C457: W 11:20 - 14:45 w9 R17.
-ERROR: C458: 1 conflicts detected for C458: W 9:30 - 12:05 w11 R17.
-ERROR: C462: 2 conflicts detected for C462: T 14:00 - 15:40 w7 R17.
-ERROR: C463: 1 conflicts detected for C463: T 11:20 - 13:00 w9 R17.
-ERROR: C464: 1 conflicts detected for C464: M 10:25 - 12:05 w11 R17.
-ERROR: C465: 2 conflicts detected for C465: R 12:15 - 14:45 w12 R17.
-ERROR: C466: 1 conflicts detected for C466: T 11:20 - 13:00 w13 R17.
-ERROR: C467: 1 conflicts detected for C467: M 10:25 - 12:05 w14 R17.
-ERROR: C470: 1 conflicts detected for C470: M 10:25 - 13:00 w11 R17.
-ERROR: C474: 2 conflicts detected for C474: T 14:00 - 15:40 w7 R17.
-ERROR: C475: 1 conflicts detected for C475: M 14:55 - 16:35 w10 R17.
-ERROR: C476: 1 conflicts detected for C476: M 9:30 - 11:10 w11 R17.
-ERROR: C477: 1 conflicts detected for C477: M 10:25 - 12:05 w12 R17.
-ERROR: C478: 1 conflicts detected for C478: R 14:00 - 15:40 w13 R17.
-ERROR: C479: 1 conflicts detected for C479: W 12:15 - 14:45 w14 R17.
-ERROR: C481: 1 conflicts detected for C481: W 14:00 - 16:35 w2 R6.
-ERROR: C488: 1 conflicts detected for C488: W 11:20 - 14:45 w9 R3.
-ERROR: C489: 1 conflicts detected for C489: T 11:20 - 14:45 w10 R8.
-ERROR: C490: Class 490 has no or invalid assignment.
-ERROR: C493: 2 conflicts detected for C493: T 10:25 - 13:00 w14 R1.
-ERROR: C498: Class 498 has no or invalid assignment.
-ERROR: C500: 1 conflicts detected for C500: R 15:50 - 16:35 w7 R17.
-ERROR: C501: Class 501 has no or invalid assignment.
-ERROR: C504: 1 conflicts detected for C504: M 10:25 - 11:10 w11 R17.
-ERROR: C506: 1 conflicts detected for C506: R 11:20 - 12:05 w13 R1.
-ERROR: C507: 1 conflicts detected for C507: W 14:55 - 15:40 w14 R3.
-ERROR: C510: 1 conflicts detected for C510: R 9:30 - 15:40 w4 R5.
-ERROR: C511: 1 conflicts detected for C511: F 9:30 - 12:30 w4 R2.
-ERROR: C512: 6 conflicts detected for C512: W 9:30 - 15:40 w7,9 R14.
-ERROR: C513: 5 conflicts detected for C513: R 9:30 - 12:30 w7,9 R14.
-ERROR: C514: 2 conflicts detected for C514: W 14:00 - 15:40 w8 R7.
-ERROR: C515: 1 conflicts detected for C515: T 11:20 - 13:00 w8 R4.
-ERROR: C516: 2 conflicts detected for C516: M 10:25 - 12:05 w12 R14.
-ERROR: C517: Class 517 has no or invalid assignment.
-ERROR: C518: 1 conflicts detected for C518: W 14:55 - 16:35 w12 R3.
-ERROR: C523: 1 conflicts detected for C523: F 9:30 - 15:40 w3 R2.
-ERROR: C524: Class 524 has no or invalid assignment.
-ERROR: C527: Class 527 has no or invalid assignment.
-ERROR: C532: Class 532 has no or invalid assignment.
-ERROR: C533: 1 conflicts detected for C533: R 9:30 - 15:40 w12 R7.
-ERROR: C535: 1 conflicts detected for C535: T 9:30 - 15:40 w13 R3.
-ERROR: C539: 1 conflicts detected for C539: T 9:30 - 12:30 w2 R5.
-ERROR: C540: 1 conflicts detected for C540: T 9:30 - 12:30 w8 R5.
-ERROR: C542: 2 conflicts detected for C542: W 9:30 - 12:30 w10 R8.
-ERROR: C546: 1 conflicts detected for C546: M 9:30 - 15:40 w6 R5.
-ERROR: C548: 2 conflicts detected for C548: R 9:30 - 15:40 w8 R3.
-ERROR: C549: 1 conflicts detected for C549: M 9:30 - 15:40 w10 R8.
-ERROR: C551: 2 conflicts detected for C551: T 9:30 - 15:40 w11 R8.
-ERROR: C553: 2 conflicts detected for C553: M 9:30 - 12:05 w7 R8.
-ERROR: C554: 2 conflicts detected for C554: M 14:00 - 16:35 w12 R5.
-ERROR: C555: 1 conflicts detected for C555: R 9:30 - 12:05 w13 R5.
-ERROR: C557: Class 557 has no or invalid assignment.
-ERROR: C559: 1 conflicts detected for C559: T 14:00 - 14:45 w1-2 R1.
-ERROR: C563: 1 conflicts detected for C563: M 14:55 - 15:40 w9-10 R5.
-ERROR: C565: 1 conflicts detected for C565: M 12:15 - 13:00 w13-14 R8.
-ERROR: C566: 1 conflicts detected for C566: M 9:30 - 10:15 w4 R17.
-ERROR: C567: 1 conflicts detected for C567: F 12:15 - 13:00 w12 R6.
-ERROR: C568: Class 568 has no or invalid assignment.
-ERROR: C570: 1 conflicts detected for C570: F 10:25 - 13:00 w3 R2.
-ERROR: C573: 1 conflicts detected for C573: T 11:20 - 14:45 w6 R8.
-ERROR: C574: 1 conflicts detected for C574: F 10:25 - 13:00 w7 R5.
-ERROR: C576: 1 conflicts detected for C576: T 12:15 - 15:40 w9 R7.
-ERROR: C577: 1 conflicts detected for C577: M 11:20 - 14:45 w10 R3.
-ERROR: C578: Class 578 has no or invalid assignment.
-ERROR: C579: 1 conflicts detected for C579: W 9:30 - 12:05 w13 R17.
-ERROR: C581: 1 conflicts detected for C581: R 10:25 - 13:00 w14 R8.
-ERROR: C583: 1 conflicts detected for C583: W 11:20 - 13:00 w2 R8.
-ERROR: C585: 2 conflicts detected for C585: W 11:20 - 13:00 w4 R8.
-ERROR: C586: 1 conflicts detected for C586: W 14:00 - 15:40 w5 R8.
-ERROR: C588: 1 conflicts detected for C588: M 11:20 - 13:00 w7 R5.
-ERROR: C589: 1 conflicts detected for C589: W 14:55 - 16:35 w8 R3.
-ERROR: C590: 1 conflicts detected for C590: R 11:20 - 13:00 w11 R3.
-ERROR: C593: 1 conflicts detected for C593: R 12:15 - 14:45 w12 R8.
-ERROR: C595: 1 conflicts detected for C595: M 14:00 - 15:40 w14 R3.
-ERROR: C598: 1 conflicts detected for C598: F 10:25 - 11:10 w3 R8.
-ERROR: C599: 1 conflicts detected for C599: M 15:50 - 16:35 w4 R5.
-ERROR: C600: 1 conflicts detected for C600: W 14:00 - 14:45 w5 R8.
-ERROR: C601: 1 conflicts detected for C601: M 10:25 - 11:10 w6 R5.
-ERROR: C603: 2 conflicts detected for C603: M 10:25 - 11:10 w8 R5.
-ERROR: C606: 1 conflicts detected for C606: T 15:50 - 16:35 w11 R3.
-ERROR: C610: Class 610 has no or invalid assignment.
-ERROR: C611: Class 611 has no or invalid assignment.
-ERROR: C612: 1 conflicts detected for C612: T 10:25 - 12:05 w7 R6.
-ERROR: C613: Class 613 has no or invalid assignment.
-ERROR: C615: Class 615 has no or invalid assignment.
-ERROR: C618: 3 conflicts detected for C618: T 11:20 - 13:00 w13 R4.
-ERROR: C619: 1 conflicts detected for C619: W 9:30 - 11:10 w5 R4.
-ERROR: C621: 2 conflicts detected for C621: R 11:20 - 13:00 w7 R4.
-ERROR: C623: 1 conflicts detected for C623: M 11:20 - 13:00 w9 R4.
-ERROR: C624: 2 conflicts detected for C624: T 14:55 - 16:35 w10 R4.
-ERROR: C627: 3 conflicts detected for C627: R 14:00 - 15:40 w13 R4.
-ERROR: C628: 4 conflicts detected for C628: T 10:25 - 12:05 w14 R4.
-ERROR: C629: 4 conflicts detected for C629: T 10:25 - 12:05 w1-14 R20.
-ERROR: C630: 2 conflicts detected for C630: W 10:25 - 12:05 w1-14 R20.
-ERROR: C643: 1 conflicts detected for C643: T 12:15 - 14:00 w13 R20.
-ERROR: C644: 1 conflicts detected for C644: T 12:15 - 14:00 w14 R20.
-ERROR: C648: 1 conflicts detected for C648: W 14:00 - 15:40 w4 R20.
-ERROR: C650: 1 conflicts detected for C650: W 14:00 - 15:40 w6 R20.
-ERROR: C653: 1 conflicts detected for C653: F 10:25 - 12:05 w9 R20.
-ERROR: C656: 1 conflicts detected for C656: W 14:00 - 15:40 w12 R20.
-ERROR: C657: 1 conflicts detected for C657: W 14:00 - 15:40 w13 R20.
-ERROR: C658: 1 conflicts detected for C658: W 14:00 - 15:40 w14 R20.
-ERROR: C659: 2 conflicts detected for C659: R 10:25 - 12:05 w1-8,11,13-14 R21.
-ERROR: C662: 5 conflicts detected for C662: F 14:00 - 15:40 w1-6,8,11,13-14 R14.
-ERROR: C663: 1 conflicts detected for C663: T 13:00 - 14:40 w11 R14.
-ERROR: C664: 1 conflicts detected for C664: R 10:25 - 12:05 w9 R14.
-ERROR: C665: 1 conflicts detected for C665: F 11:20 - 13:00 w12 R14.
-ERROR: C668: Class 668 has no or invalid assignment.
-ERROR: C671: Class 671 has no or invalid assignment.
-ERROR: C673: 2 conflicts detected for C673: R 9:30 - 15:40 w12 R7.
-ERROR: C675: Class 675 has no or invalid assignment.
-ERROR: C676: Class 676 has no or invalid assignment.
-ERROR: C680: 1 conflicts detected for C680: R 10:25 - 12:05 w1 R7.
-ERROR: C681: Class 681 has no or invalid assignment.
-ERROR: C682: Class 682 has no or invalid assignment.
-ERROR: C683: Class 683 has no or invalid assignment.
-ERROR: C687: 1 conflicts detected for C687: R 12:15 - 14:45 w8 R1.
-ERROR: C688: Class 688 has no or invalid assignment.
-ERROR: C689: 1 conflicts detected for C689: M 10:25 - 12:05 w10 R2.
-ERROR: C691: 1 conflicts detected for C691: T 10:25 - 12:05 w12 R2.
-ERROR: C694: 1 conflicts detected for C694: M 11:20 - 12:05 w1 R14.
-ERROR: C696: 1 conflicts detected for C696: T 14:00 - 14:45 w3 R14.
-ERROR: C698: 2 conflicts detected for C698: T 12:15 - 13:00 w5 R14.
-ERROR: C699: 1 conflicts detected for C699: R 14:00 - 14:45 w6 R14.
-ERROR: C701: 1 conflicts detected for C701: M 10:25 - 11:10 w8 R14.
-ERROR: C703: 2 conflicts detected for C703: F 12:15 - 13:00 w12 R14.
-ERROR: C707: 1 conflicts detected for C707: F 12:15 - 13:00 w14 R14.
-ERROR: C708: 5 conflicts detected for C708: W 9:30 - 12:30 w1-6,8,10-11,13 R21.
-ERROR: C710: 1 conflicts detected for C710: F 14:00 - 17:00 w12 R21.
+22
+34
+42
+43
+44
+47
+50
+53
+55
+57
+60
+68
+71
+73
+76
+79
+97
+98
+100
+102
+103
+108
+110
+111
+113
+114
+126
+127
+142
+143
+156
+157
+159
+161
+162
+172
+175
+177
+179
+180
+182
+184
+185
+189
+190
+192
+196
+206
+208
+209
+211
+215
+216
+217
+218
+219
+221
+225
+232
+233
+238
+239
+242
+244
+248
+257
+258
+261
+263
+265
+266
+269
+283
+287
+288
+289
+290
+291
+292
+297
+298
+304
+310
+311
+313
+315
+321
+324
+335
+337
+339
+345
+351
+352
+353
+355
+359
+363
+367
+372
+373
+374
+379
+380
+382
+383
+384
+385
+387
+388
+389
+391
+397
+399
+405
+406
+408
+413
+415
+416
+417
+418
+419
+420
+422
+424
+434
+435
+436
+437
+438
+440
+443
+445
+446
+447
+450
+453
+455
+458
+459
+464
+467
+468
+475
+488
+493
+502
+508
+509
+510
+511
+518
+526
+531
+542
+553
+562
+566
+567
+569
+573
+583
+584
+586
+587
+592
+596
+597
+598
+601
+606
+607
+608
+609
+613
+615
+617
+631
+633
+642
+643
+644
+646
+649
+650
+652
+653
+656
+657
+659
+662
+664
+665
+669
+670
+671
+673
+674
+675
+679
+680
+682
+683
+684
+685
+687
+689
+700
+705
+708
+709
+710
+713
+714
+720
+722
+724
+727
+733
+734
+735
+736
+737
+738
+739
+743
+749
+750
+751
+752
+754
+756
+758
+759
+764
+766
+767
+769
+770
+776
+779
+781
+783
+784
+785
+786
+788
+790
+792
+797
+803
+804
+808
+821
+822
+823
+824
+825
+826
+827
+828
+829
+845
+846
+847
+848
+849
+850
+851
+852
+853
+854
+855
+862
+863
+864
+865
+866
+867
+868
+869
+870
+871
+872
+873
+874
+875
+881
+882
+889
+891
+892
+895
+896
+899
+904
+905
+906
+909
+911
+916
+917
+919
+923
+924
+926
+927
+929
+930
+931
+932
+933
+934
+935
+936
+937
+938
+939
+941
+943
+944
+946
+948
+960
+968
+973
+974
+975
+976
+977
+978
+979
+980
+981
+982
+983
+985
+986
+987
+989
+992
+996
+997
+1003
+1004
+1005
+1008
+1009
+1010
+1011
+1012
+1013
+1020
+1021
+1023
+1024
+1025
+1026
+1029
+1030
+1032
+1034
+1036
+1038
+1042
+1043
+1044
+1045
+1046
+1047
+1048
+1049
+1054
+1057
+1060
+1065
+1066
+1067
+1071
+1076
+1079
+1081
+1083
+1084
+1088
+1090
+1091
+1092
+1102
+1103
+1104
+1107
+1108
+1111
+1114
+1117
+1118
+1119
+1120
+1121
+1122
+1123
+1124
+1125
+1127
+1128
+1129
+1130
+1131
+1132
+1134
+1135
+1138
+1143
+1145
+1148
+1149
+1150
+1151
+1153
+1155
+1158
+1159
+1160
+1161
+1162
+1164
+1166
+1167
+1168
+1169
+1170
+1172
+1173
+1176
+1177
+1179
+1181
+1182
+1183
+1184
+1186
+1187
+1189
+1192
+1194
+1195
+1197
+1198
+1200
+1206
+1208
+1210
+1214
+1215
+1216
+1217
+1218
+1219
+1234
+1238
+1239
+1241
+1243
+1244
+1245
+1246
+1248
+1249
+1259
+1260
+1261
+1265
+1266
+1267
+1268
+1271
+1273
+1275
+1277
+1288
+1290
+1295
+1298
+1303
+1306
+1311
+1312
+1316
+1322
+1324
+1325
+1327
+1328
+1334
+1338
+1341
+1342
+1343
+1345
+1346
+1347
+1349
+1350
+1351
+1352
+1353
+1354
+1355
+1356
+1358
+1359
+1361
+1363
+1365
+1367
+1371
+1372
+1373
+1374
+1388
+1390
+1393
+1397
+1398
+1399
+1401
+1403
+1405
+1408
+1412
+1413
+1414
+1416
+1417
+1420
+1421
+1422
+1425
+1426
+1428
+1429
+1431
+1432
+1436
+1437
+1438
+1439
+1441
+1442
+1446
+1447
+1448
+1449
+1450
+1451
+1452
+1453
+1455
+1456
+1459
+1463
+1466
+1467
+1468
+1471
+1473
+1474
+1475
+1476
+1481
+1482
+1483
+1486
+1487
+1490
+1491
+1493
+1495
+1501
+1502
+1504
+1505
+1508
+1509
+1510
+1511
+1513
+1514

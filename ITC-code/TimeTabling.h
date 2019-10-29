@@ -79,12 +79,18 @@ class TimeTablingProblem{
 
 
 		long long penalize_pair( int id_class_i, int id_class_j, int id_distribution);
-		long long penalize_overall( int id_distribution);
+		long long penalize_overall( int id_distribution, vector<vector<int>>&Graph_Hard_Constraints, vector<bool> &invalid_variables);
 		bool conflicts_student(int id_student);
 
 		int implicit_room_constraints(vector<int> &x_var_time_, vector<int> &x_var_room_, vector<vector<int>> &Graph_Hard_Constraints, vector<bool> &grid);
 //		int hard_constraints_by_pairs(vector<int> &x_var_time_, vector<int> &x_var_room_, vector<vector<int>> &Graph_Hard_Constraints);
 		int hard_constraints_by_pairs(vector<int> &x_var_time_, vector<int> &x_var_room_,  vector<vector<int> > &Graph_Hard_Constraints, vector<bool> &grid2);
+
+
+		int overall_hard_constraints(vector<int> &x_var_time_, vector<int> &x_var_room_,  vector<vector<int> > &Graph_Hard_Constraints, vector<bool> &unavailable);
+
+		int overall_soft_constraints(vector<int> &x_var_time_, vector<int> &x_var_room_, vector<bool> &invalid_variables,  vector<vector<int> > &Graph_Hard_Constraints );
+
 		long long soft_constraints_by_pairs(vector<int> &x_var_time_, vector<int> &x_var_room_,  vector<bool>  &assigned);
 
 
@@ -101,7 +107,7 @@ class TimeTablingProblem{
 		inline bool DifferentRoom(int id_room_i, int id_room_j){  return ( id_room_i != id_room_j);}
 		inline bool SameAttendees(Time &C_ti, Time &C_tj, int id_room_i, int id_room_j)
 		{
-//			if( id_room_i == NOT_SET || id_room_j==NOT_SET) return true;
+//			if( id_room_i == NOT_SET || id_room_j==NOT_SET) return false;
 			int  traveling_time_i_j = (id_room_i==NOT_SET)?0:rooms[id_room_i].time_travel_to_room[id_room_j];
 			int  traveling_time_j_i = (id_room_j==NOT_SET)?0:rooms[id_room_j].time_travel_to_room[id_room_i];
 			bool c1 = (C_ti.end + traveling_time_i_j ) <= C_tj.start ;
