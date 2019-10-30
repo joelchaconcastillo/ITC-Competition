@@ -260,10 +260,8 @@ void TimeTablingProblem::Parsing_type(const char *type_, Distribution &str_distr
 	}
    }
 }
-bool TimeTablingProblem::conflicts_student(int id_student, vector<int> &x_var_time_, vector<int> &x_var_room_)
+bool TimeTablingProblem::conflicts_student(int id_student)
 {
-   x_var_time = x_var_time_;
-   x_var_room = x_var_room_;
    vector<int> classes_by_student = x_var_student[id_student]; 
    for(int i = 0; i < classes_by_student.size(); i++) //checking each class...
    {
@@ -709,22 +707,22 @@ void TimeTablingProblem::loading_example()
 //}
 
 
-int TimeTablingProblem::implicit_room_constraints(vector<int> &x_var_time_, vector<int> &x_var_room_, vector< vector<int> > &Graph_Hard_Constraints, vector<bool> &invalid_variables)
+int TimeTablingProblem::implicit_room_constraints(vector< vector<int> > &Graph_Hard_Constraints, vector<bool> &invalid_variables)
 {
     vector<vector<int> > room_to_class(rooms.size());
     int Incumpled_room_constraints = 0;
     for(int i = 0; i < classes.size(); i++) // reordering classes by rooms...
     {
-	if( x_var_room_[i]  == NOT_SET) continue;    
-	room_to_class[x_var_room_[i]].push_back(i);
+	if( x_var_room[i]  == NOT_SET) continue;    
+	room_to_class[x_var_room[i]].push_back(i);
     }
 
     for(int id_class_i = 0; id_class_i < classes.size(); id_class_i++) //check each class
     {
 //	  if(invalid_variables[id_class_i]) continue;
-	   if(x_var_room_[id_class_i] == NOT_SET) continue;
-             int id_room_i = x_var_room_[id_class_i];
-	     Time C_ti = times[x_var_time_[id_class_i]];
+	   if(x_var_room[id_class_i] == NOT_SET) continue;
+             int id_room_i = x_var_room[id_class_i];
+	     Time C_ti = times[x_var_time[id_class_i]];
 	   for(int j = 0; j < rooms[id_room_i].unavailable.size(); j++)
 	    {
 		Time C_tj = times[rooms[id_room_i].unavailable[j]];
@@ -739,11 +737,11 @@ int TimeTablingProblem::implicit_room_constraints(vector<int> &x_var_time_, vect
 	    {
 		int id_class_j = room_to_class[id_room_i][j];
 
-		if( x_var_room_[id_class_j] == NOT_SET) continue;
+		if( x_var_room[id_class_j] == NOT_SET) continue;
 
 		if( id_class_i == id_class_j ) continue;
 	
-        	Time C_tj = times[x_var_time_[id_class_j]];
+        	Time C_tj = times[x_var_time[id_class_j]];
 		if(Overlap(C_ti, C_tj))
 		{
 	           Graph_Hard_Constraints[id_class_i].push_back(id_class_j);
@@ -755,10 +753,8 @@ int TimeTablingProblem::implicit_room_constraints(vector<int> &x_var_time_, vect
    return Incumpled_room_constraints;
 }
 
-int TimeTablingProblem::hard_constraints_by_pairs(vector<int> &x_var_time_, vector<int> &x_var_room_,  vector<vector<int> > &Graph_Hard_Constraints, vector<bool> &unavailable)
+int TimeTablingProblem::hard_constraints_by_pairs(vector<vector<int> > &Graph_Hard_Constraints, vector<bool> &unavailable)
 {
-    this->x_var_time = x_var_time_;
-    this->x_var_room = x_var_room_;
     int cont = 0;
     for(int i = 0; i < classes.size(); i++)
     {
@@ -785,10 +781,8 @@ int TimeTablingProblem::hard_constraints_by_pairs(vector<int> &x_var_time_, vect
     return cont;
 }
 
-int TimeTablingProblem::overall_hard_constraints(vector<int> &x_var_time_, vector<int> &x_var_room_,  vector<vector<int> > &Graph_Hard_Constraints, vector<bool> &invalid_variables)
+int TimeTablingProblem::overall_hard_constraints(vector<vector<int> > &Graph_Hard_Constraints, vector<bool> &invalid_variables)
 {
-    this->x_var_time = x_var_time_;
-    this->x_var_room = x_var_room_;
     int cont = 0;
 
     for(int k = 0; k < all_hard_distributions.size(); k++)
@@ -807,10 +801,8 @@ int TimeTablingProblem::overall_hard_constraints(vector<int> &x_var_time_, vecto
     }
     return cont;
 }
-int TimeTablingProblem::overall_soft_constraints(vector<int> &x_var_time_, vector<int> &x_var_room_, vector<bool> &invalid_variables, vector<vector<int>>&Graph_Hard_Constraints)
+int TimeTablingProblem::overall_soft_constraints(vector<bool> &invalid_variables, vector<vector<int>>&Graph_Hard_Constraints)
 {
-    this->x_var_time = x_var_time_;
-    this->x_var_room = x_var_room_;
     int cont = 0;
 
     for(int k = 0; k < all_soft_distributions.size(); k++)
@@ -826,7 +818,7 @@ int TimeTablingProblem::overall_soft_constraints(vector<int> &x_var_time_, vecto
     return cont;
 }
 
-long long TimeTablingProblem::soft_constraints_by_pairs(vector<int> &x_var_time_, vector<int> &x_var_room_,  vector<bool> &assigned)
+long long TimeTablingProblem::soft_constraints_by_pairs(vector<bool> &assigned)
 {
   long long distribution_soft_penalizations  = 0;
 
@@ -854,9 +846,8 @@ long long TimeTablingProblem::soft_constraints_by_pairs(vector<int> &x_var_time_
 
    return distribution_soft_penalizations;
 }
-long long TimeTablingProblem::room_penalization(vector< int> &x_var_room_, vector<bool> &invalid_variables)
+long long TimeTablingProblem::room_penalization(vector<bool> &invalid_variables)
 {
-   x_var_room = x_var_room_;
    
   long long room_penalization_v = 0;
 for(int i = 0; i < classes.size(); i++)
@@ -866,9 +857,8 @@ for(int i = 0; i < classes.size(); i++)
   }
   return room_penalization_v;
 }
-long long TimeTablingProblem::time_penalization(vector<int> &x_var_time_, vector<bool> &invalid_variables)
+long long TimeTablingProblem::time_penalization(vector<bool> &invalid_variables)
 {
-  x_var_time = x_var_time_;
   long long time_penalization_v =0;
   for(int i = 0; i < x_var_time.size(); i++)
   {

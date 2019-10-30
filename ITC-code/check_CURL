@@ -1,0 +1,5 @@
+curl \
+	-u chaconcastillojoel@gmail.com:Solfeo123456 \
+	-H "Content-Type:text/xml;charset=UTF-8" \
+	-d @save_file_output.xml \
+	https://www.itc2019.org/itc2019-validator

@@ -23,12 +23,13 @@ int cont = 0;
     ///A class cannot be placed in a room when its assigned time overlaps with an unavailability of the room or when there is other class placed in the room at an overlapping time.
     ///When it happend a room is dropped out
     vector<bool> invalid_variables(x_var_room.size(), false); 
-    hard_constraints_violated += TTP->implicit_room_constraints(x_var_time, x_var_room, Graph_Hard_Constraints, invalid_variables);
+    TTP->x_var_time = x_var_time;
+    TTP->x_var_room = x_var_room;
+    hard_constraints_violated += TTP->implicit_room_constraints(Graph_Hard_Constraints, invalid_variables);
 
-    hard_constraints_violated += TTP->hard_constraints_by_pairs(x_var_time, x_var_room, Graph_Hard_Constraints, invalid_variables);
+    hard_constraints_violated += TTP->hard_constraints_by_pairs(Graph_Hard_Constraints, invalid_variables);
 
-
-    hard_constraints_violated += TTP->overall_hard_constraints(x_var_time, x_var_room, Graph_Hard_Constraints, invalid_variables);
+    hard_constraints_violated += TTP->overall_hard_constraints(Graph_Hard_Constraints, invalid_variables);
 
      int cont_unassigned_variables = 0;
     ////Summary of unavailable variables...
@@ -56,18 +57,18 @@ int cont = 0;
  long long distribution_soft_penalizations= 0;
 
 
-    distribution_soft_penalizations+= TTP->soft_constraints_by_pairs(x_var_time, x_var_room, invalid_variables);
-    distribution_soft_penalizations+= TTP->overall_soft_constraints(x_var_time, x_var_room, invalid_variables, Graph_Hard_Constraints);
+    distribution_soft_penalizations+= TTP->soft_constraints_by_pairs(invalid_variables);
+    distribution_soft_penalizations+= TTP->overall_soft_constraints(invalid_variables, Graph_Hard_Constraints);
 	cout <<"soft "<< distribution_soft_penalizations <<endl;
 ///  ///Checking distributions between pair classes..
 
 ///  ///Checking room penalizations..
 ///  int assigned_variables = 0;
-  long long room_penalization_v = TTP->room_penalization(x_var_room, invalid_variables);
+  long long room_penalization_v = TTP->room_penalization(invalid_variables);
     cout << "room " << room_penalization_v <<endl;
 ///
 ///
-    long long time_penalization_v = TTP->time_penalization(x_var_time, invalid_variables);
+    long long time_penalization_v = TTP->time_penalization(invalid_variables);
   
 cout << "time" << " " <<time_penalization_v <<endl;
     long long student_penalization = 0; //check student conflicts...

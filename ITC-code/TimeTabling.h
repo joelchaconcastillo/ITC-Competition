@@ -80,24 +80,24 @@ class TimeTablingProblem{
 
 		long long penalize_pair( int id_class_i, int id_class_j, int id_distribution);
 		long long penalize_overall( int id_distribution, vector<vector<int>>&Graph_Hard_Constraints, vector<bool> &invalid_variables);
-		bool conflicts_student(int id_student, vector<int> &x_var_time_, vector<int> &x_var_room_);
+		bool conflicts_student(int id_student);
 
-		int implicit_room_constraints(vector<int> &x_var_time_, vector<int> &x_var_room_, vector<vector<int>> &Graph_Hard_Constraints, vector<bool> &grid);
+		int implicit_room_constraints(vector<vector<int>> &Graph_Hard_Constraints, vector<bool> &grid);
 //		int hard_constraints_by_pairs(vector<int> &x_var_time_, vector<int> &x_var_room_, vector<vector<int>> &Graph_Hard_Constraints);
-		int hard_constraints_by_pairs(vector<int> &x_var_time_, vector<int> &x_var_room_,  vector<vector<int> > &Graph_Hard_Constraints, vector<bool> &grid2);
+		int hard_constraints_by_pairs( vector<vector<int> > &Graph_Hard_Constraints, vector<bool> &grid2);
 
 
-		int overall_hard_constraints(vector<int> &x_var_time_, vector<int> &x_var_room_,  vector<vector<int> > &Graph_Hard_Constraints, vector<bool> &unavailable);
+		int overall_hard_constraints( vector<vector<int> > &Graph_Hard_Constraints, vector<bool> &unavailable);
 
-		int overall_soft_constraints(vector<int> &x_var_time_, vector<int> &x_var_room_, vector<bool> &invalid_variables,  vector<vector<int> > &Graph_Hard_Constraints );
+		int overall_soft_constraints(vector<bool> &invalid_variables,  vector<vector<int> > &Graph_Hard_Constraints );
 
-		long long soft_constraints_by_pairs(vector<int> &x_var_time_, vector<int> &x_var_room_,  vector<bool>  &assigned);
+		long long soft_constraints_by_pairs(vector<bool>  &assigned);
 
 
 
-		long long time_penalization(vector<int> &x_var_time_, vector<bool> &invalid_variables);
+		long long time_penalization(vector<bool> &invalid_variables);
 
-		long long room_penalization(vector< int> &x_var_room_, vector<bool> &invalid_variables);
+		long long room_penalization(vector<bool> &invalid_variables);
 
 
 		inline bool SameStart(Time &C_ti, Time &C_tj){return (C_ti.start == C_tj.start); }
