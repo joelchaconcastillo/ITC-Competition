@@ -25,7 +25,6 @@ pair<long long, int> Individual::calculateFitness(vector<int> &x_ind){
     hard_constraints_violated += TTP->hard_constraints_by_pairs(invalid_variables);
     hard_constraints_violated += TTP->overall_hard_constraints(invalid_variables);
 
-
  long long distribution_soft_penalizations= 0;
     distribution_soft_penalizations+= TTP->soft_constraints_by_pairs(invalid_variables);
     distribution_soft_penalizations+= TTP->overall_soft_constraints(invalid_variables);
@@ -48,6 +47,7 @@ long long student_penalization_v = student_penalization_v = TTP->student_penaliz
 void printBest(){
 	
 }
+
 void Individual::localSearch(){
   
 bool hardsolved = false;
@@ -55,7 +55,9 @@ bool hardsolved = false;
  long long best = x_p.first + x_p.second*10000;
  bool good_variable = false;
  int idx_var = -1;//rand()%x_var.size();
- while(!hardsolved)
+ int maxite = 1000000;
+ int cont = 0;
+ while(cont < maxite )
  {
     vector<int> cu_var = x_var;
    for(int i = 0; i < (rand()%3+1); i++)
@@ -67,15 +69,16 @@ bool hardsolved = false;
 
      pair<long long,int> p = calculateFitness(cu_var);
      long long current = p.first + p.second*10000;
+     
      if(current < best)
 	{
 	   best = current;
-	   x_var = cu_var;
-	 cout << best <<endl;
+	   this->x_var = cu_var;
+	 cout << best << " "<<p.first << " "<<p.second  <<endl;
+	cont = 0;
 	}
-//	else idx_var=-1;
-    if(p.second ==0) hardsolved = true;
-
+  if( p.second == 0 ) break;
+//    cont++;
  }
 }
 

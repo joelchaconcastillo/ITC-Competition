@@ -699,26 +699,28 @@ void TimeTablingProblem::loading_example()
 	}
     }
 }
-//long long int TimeTablingProblem::get_var_time_size()
-//{ 
-//   long long int prod = 0;
-//   for(int i = 0; i < x_var_time.size(); i++)
-//   {    
-//	if(this->TTP->classes[i].times.empty()) continue;
-//	prod += this->TTP->classes[i].times.size();
-//   }
-//   return prod;
-//}
-//long long int TimeTablingProblem::get_var_room_size()
-//{
-//   long long int prod = 0;
-//   for(int i = 0; i < x_var_room.size(); i++)
-//   {
-//	if(classes[i].rooms_c.empty()) continue;
-//	prod += classes[i].rooms_c.size();
-//   }
-//   return prod;
-//}
+long long int TimeTablingProblem::get_var_time_size()
+{ 
+   long long int aveprod = 0;
+   for(int i = 0; i < x_var_time.size(); i++)
+   {    
+	if(classes[i].times.empty()) continue;
+	aveprod += classes[i].times.size();
+   }
+   aveprod /= x_var_time.size();
+   return aveprod;
+}
+long long int TimeTablingProblem::get_var_room_size()
+{
+   long long int aveprod = 0;
+   for(int i = 0; i < x_var_room.size(); i++)
+   {
+	if(classes[i].rooms_c.empty()) continue;
+	aveprod += classes[i].rooms_c.size();
+   }
+   aveprod /= x_var_room.size();
+   return aveprod;
+}
 
 
 int TimeTablingProblem::implicit_room_constraints(vector<bool> &invalid_variables)

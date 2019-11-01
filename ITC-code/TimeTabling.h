@@ -155,8 +155,8 @@ class TimeTablingProblem{
 
 
 
-	//	long long int get_var_time_size();
-	//	long long int get_var_room_size();
+		long long int get_var_time_size();
+		long long int get_var_room_size();
 		void loading_example();
 		void save_xml(vector<int> &x_var_room, vector<int> &x_var_time, vector< vector<int> > &x_var_student);
 		void linearization();
