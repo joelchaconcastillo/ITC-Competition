@@ -36,11 +36,38 @@ void TimeTablingProblem::Load(string file)
  //   cout << this->time_w << " " << this->room_w << " " << this->distribution_w << " " << this->student_w <<endl;
 
     //computing the number of rooms... it can be a user parameter..
-    int Nrooms = 0; 
-    for (pugi::xml_node room: doc.child("problem").child("rooms")) //for each room ...
-       Nrooms++; 
-     rooms.resize(Nrooms); // zero-index...
+    ////////////////////GETTING SIZES.....    
+    int NRooms = 0, NCourses=0, NConfigurations=0, NSubparts=0, NClasses=0, NStudents=0; 
+    for (pugi::xml_node room: doc.child("problem").child("rooms")) //for each room  getting the size..
+	NRooms = max(NRooms, room.attribute("id").as_int());
+   for (pugi::xml_node course: doc.child("problem").child("courses")) //for each course ...
+    {
+	NCourses = max(NCourses, course.attribute("id").as_int());
+        for (pugi::xml_node config: course) //for each configuration
+	{
+	   NConfigurations = max(NConfigurations, config.attribute("id").as_int());
+           for (pugi::xml_node isubpart:config) //for each subpart
+	   {
+		NSubparts = max(NSubparts, isubpart.attribute("id").as_int());
+              for (pugi::xml_node iclass:isubpart) //for each class
+	      {
+		 NClasses= max(NClasses, iclass.attribute("id").as_int());
+              }
+	   }
+	}
+    }
+    for (pugi::xml_node student_i: doc.child("problem").child("students")) //for each course ...
+    {
+	NStudents = max(NStudents, student_i.attribute("id").as_int());
+    }
+    ////////////////////<----GETTING SIZES.....    
 
+     rooms.resize(NRooms); // zero-index...
+     courses.resize(NCourses); 
+     configuration.resize(NConfigurations);	
+     subpart.resize(NSubparts);
+     classes.resize(NClasses);
+    students.resize(NStudents);
     //reading rooms configurations...
     for (pugi::xml_node room: doc.child("problem").child("rooms")) //for each room ...
     {
@@ -76,20 +103,24 @@ void TimeTablingProblem::Load(string file)
     for (pugi::xml_node course: doc.child("problem").child("courses")) //for each course ...
     {
 	vector< int > course_to_configuration;
+	int id_course = course.attribute("id").as_int()-1;
         for (pugi::xml_node config: course) //for each configuration
 	{
 	   course_to_configuration.push_back(config.attribute("id").as_int()-1);
 	   vector< int > configuration_to_subpart;
-           for (pugi::xml_node subpart:config) //for each subpart
+	   int id_configuration = config.attribute("id").as_int()-1;
+           for (pugi::xml_node isubpart:config) //for each subpart
 	   {
 	      vector <int> subpart_to_class;
-              for (pugi::xml_node iclass:subpart) //for each class
+	      int id_subpart = isubpart.attribute("id").as_int()-1;
+              for (pugi::xml_node iclass:isubpart) //for each class
 	      {
+	         int id_class = iclass.attribute("id").as_int()-1;
 		 Class str_class;
 		 str_class.limit = iclass.attribute("limit").as_int();
 		 str_class.Parent_id = iclass.attribute("parent").as_int()-1;
 		 str_class.rooms = ( !strcmp(iclass.attribute("room").value(), "false") )? false:true;
-
+		
                  for (pugi::xml_node inside_class:iclass) //for each attribute inside to class..
 		 {
 		      if( !strcmp(inside_class.name(), "room") )
@@ -112,20 +143,24 @@ void TimeTablingProblem::Load(string file)
 			  this->times.push_back(str_time);
 	              }
 		 }
-		 this->classes.push_back(str_class);
+		 this->classes[id_class] = str_class;
+//		 this->classes.push_back(str_class);
 		 subpart_to_class.push_back(iclass.attribute("id").as_int()-1);
               }
-	      this->subpart.push_back(subpart_to_class);
-	      configuration_to_subpart.push_back(subpart.attribute("id").as_int()-1);
+//	      this->subpart.push_back(subpart_to_class);
+	      this->subpart[id_subpart] = subpart_to_class;
+	      configuration_to_subpart.push_back(isubpart.attribute("id").as_int()-1);
 	   }
-	   this->configuration.push_back(configuration_to_subpart);
+//	   this->configuration.push_back(configuration_to_subpart);
+	   this->configuration[id_configuration] = configuration_to_subpart;
 	   course_to_configuration.push_back(config.attribute("id").as_int()-1);
 	}
-	this->courses.push_back(course_to_configuration);
+//	this->courses.push_back(course_to_configuration);
+	this->courses[id_course] = course_to_configuration ;
     }
     ////// reading distributions..
-//    distributions.resize(1);
     distributions_by_class.resize(this->classes.size());
+
     for (pugi::xml_node distribution_i: doc.child("problem").child("distributions")) //for each course ...
     {
        //parsing distribution constraints..
@@ -173,7 +208,6 @@ void TimeTablingProblem::Load(string file)
 	   all_comparison_distributions.push_back(distributions.size());
 	
        distributions.push_back(str_distribution);
-       
     }
     //reading students...
     //
@@ -290,17 +324,54 @@ long long TimeTablingProblem::penalize_overall(int id_distribution, vector<vecto
   if(dist.type == MAXDAYS)
   {
      unsigned long int days = 0;
-      
+     vector<int> class_c; 
      for(int i = 0; i < dist.classes.size(); i++)
      {
         int id_class = dist.classes[i]; 
+//	if(invalid_variables[id_class])continue;
+
+     if( classes[id_class].times.empty())  continue;
         Time C_ti = times[x_var_time[id_class]];
            days |= C_ti.days;
+	class_c.push_back(id_class);
+//	if( dist.required)
+//	{ 
+//	   cout << days << "-"<< id_class+1<<" *"<< __builtin_popcountll(days)<<"." <<dist.D <<" ";
+//	}
      } 
+//cout<<endl;
      int nonzerobits = __builtin_popcountll(days);
-     
-    //   return dist.penalty*(dist.D-nonzerobits);
-       return dist.penalty*max(0, dist.D-nonzerobits);
+    	if(dist.required &&  nonzerobits > dist.D )
+	{
+
+	int mini = -1, minv = -1;
+     	   for(int i = 0; i < class_c.size(); i++)
+	   {
+		invalid_variables[class_c[i]]=true;
+		if( minv < class_c[i])
+		{
+			minv = class_c[i];
+			mini = i;
+		}
+     	       for(int j = 0; j < class_c.size(); j++)
+		{
+//		Graph_Hard_Constraints[class_c[i]].push_back(class_c[j]);
+//		if(class_c[i]>class_c[0])
+//		break;
+		}
+	   }
+
+//     	   for(int i = 0; i < class_c.size(); i++)
+//	   {
+//		 Graph_Hard_Constraints[class_c[mini]].push_back(class_c[i]);
+//		}
+	cout << endl;
+     	   for(int i = 0; i < class_c.size(); i++)
+	cout <<"("<< class_c[i]+1 << ") cc "<< times[x_var_time[class_c[i]]].start << " " ;
+	cout << endl;
+	} 
+	
+       return dist.penalty*max(0, nonzerobits - dist.D);
   }
   else if( dist.type == MAXDAYLOAD)
   {
@@ -310,19 +381,29 @@ long long TimeTablingProblem::penalize_overall(int id_distribution, vector<vecto
         for(unsigned long int day_i = 0; day_i < nrDays; day_i++)
         {
 	  int day_load = 0;
+	  vector<int> class_c;
           for(int i = 0; i < dist.classes.size(); i++)
           {
              int id_class = dist.classes[i]; 
-		if(invalid_variables[id_class])continue;
+//		if(invalid_variables[id_class])continue;
              Time C_ti = times[x_var_time[id_class]];
 	     bool c1 = (C_ti.days & (1<<day_i))!=0;
 	     bool c2 = (C_ti.weeks & (1<<week_i))!=0;
              if( c1 && c2  ) 
 	      {
 		day_load += C_ti.length;
+		class_c.push_back(id_class);
+//	        cout <<id_class << " lll ";
 	      }
           }
+	  if(  day_load > dist.S && dist.required)
+		{
 
+		for(int i = 0; i < class_c.size(); i++) invalid_variables[class_c[i]]=true;
+	//		cout << class_c[i] << " lll ";
+		
+		cout << endl;
+		}
 	  TotalDayLoad += max(0, day_load-dist.S);
 	}
      }
@@ -335,31 +416,37 @@ long long TimeTablingProblem::penalize_overall(int id_distribution, vector<vecto
      { 
         for(int day_i = 0; day_i < nrDays; day_i++)
         {
-	  priority_queue< pair<int, int > > pq; ///kind of pre-sort by starts and ends..
+	  priority_queue< pair<int, pair<int, int> > > pq; ///kind of pre-sort by starts and ends..
+	 vector<int> class_c;
           for(int i = 0; i < dist.classes.size(); i++)
           {
              int id_class = dist.classes[i]; 
-             TimeTablingProblem::Time C_ti = times[x_var_time[id_class]];
+//	     if( invalid_variables[id_class]) continue;
+             Time C_ti = times[x_var_time[id_class]];
 	     bool c1 = (C_ti.days & (1<<day_i))!=0;
 	     bool c2 = (C_ti.weeks & (1<<week_i))!=0;
-             if( c1 && c2  ) pq.push(make_pair(-C_ti.start, C_ti.end));
+             if( c1 && c2  ){
+		 pq.push(make_pair(-C_ti.start, make_pair(C_ti.end, id_class)));
+		  class_c.push_back(id_class);
+		}
           }
 	  if(pq.empty()) continue;
-	  int NBreaks = 0; 
-	  int Block_start = -pq.top().first, Block_end = pq.top().second;
-	  pq.pop();
-	  while(!pq.empty())
+          vector<int> start_b, end_b;
+	  vector <vector<int> > blocks;
+          split_in_blocks(blocks, start_b, end_b, pq, dist.S);
+	  int NBreaks = blocks.size();
+	
+	  
+	  if( NBreaks > dist.R+1 && dist.required)
 	  {
-	     int current_start = -pq.top().first;
-	     int current_end = pq.top().second;
-	     pq.pop();
-	     if( Block_end + dist.S <= current_start ) //is the same than (Block_end + dist.S <= current_start )
-		NBreaks++;
-	     Block_end = current_end;
-	  }
-	  Totalbreaks += max(0, NBreaks-dist.R+1);
+		for(int i = 0; i  < class_c.size(); i++)
+		invalid_variables[class_c[i]] = true;
+           }
+	  Totalbreaks += max(NBreaks - dist.R-1, 0);
+
 	}
      }
+
     return (Totalbreaks*dist.penalty)/nrWeeks;
   }
   else if( dist.type == MAXBLOCK)
@@ -383,42 +470,14 @@ long long TimeTablingProblem::penalize_overall(int id_distribution, vector<vecto
 	     {
 		 order_distribution[id_class] = cont++;	
 		 pq.push(make_pair(-C_ti.start, make_pair(C_ti.end, id_class)));
+		//cout << id_class +1<< "," << C_ti.end<<","<<C_ti.start<<" ";
 	     }
           }
+//	cout <<endl;
 	  if(pq.empty()) continue;
-
-         vector<int> block, start_b, end_b;
+         vector<int> start_b, end_b;
 	 vector <vector<int> > blocks;
-
-	  int Block_start = -pq.top().first, Block_end = pq.top().second.first;
-	  int id_class = pq.top().second.second;
-	  block.push_back(id_class);
-	  pq.pop();
-
-	  while(!pq.empty()) //building blocks by requirements..
-	  {
-	     int current_start = -pq.top().first;
-	     int current_end = pq.top().second.first;
-	     int id_class = pq.top().second.second;
-	     pq.pop();
-	     if( Block_end + dist.S <current_start )
-	     {
-		blocks.push_back(block);
-		start_b.push_back(Block_start);
-		end_b.push_back(Block_end);
-		
-		block.clear();
-		Block_start = current_start;
-	     }
-	     block.push_back(id_class);
-
-	     Block_end = current_end;
-	  }
-	  if(!block.empty()){
-		 blocks.push_back(block);
-	 	 start_b.push_back(Block_start);
-		 end_b.push_back(Block_end);
-	}
+          split_in_blocks(blocks, start_b, end_b, pq, dist.S);
 
             //checking size....
             for(int i = 0; i < blocks.size(); i++)
@@ -427,16 +486,10 @@ long long TimeTablingProblem::penalize_overall(int id_distribution, vector<vecto
                {
                   if( dist.required )
                    {
-		      int maxid = -1, maxv=-10000;
 		      for(int j = 0; j < blocks[i].size(); j++)
 			{
-			   if(order_distribution[blocks[i][j]] > maxv)
-			   {
-				maxv = order_distribution[blocks[i][j]];
-				maxid = blocks[i][j];
-			   }
+		          invalid_variables[blocks[i][j]] = true;
 			}
-		       invalid_variables[maxid] = true;
                    }
                   TotalBlocksOver++;   
                }
@@ -530,6 +583,7 @@ long long TimeTablingProblem::penalize_pair( int id_class_i, int id_class_j, int
  {
         int id_room_i = x_var_room[id_class_i];
         int id_room_j = x_var_room[id_class_j];
+
       if( ! SameAttendees(times[id_time_i], times[id_time_j], id_room_i, id_room_j) )
 	 violatedTime = true;
   }
@@ -540,6 +594,7 @@ long long TimeTablingProblem::penalize_pair( int id_class_i, int id_class_j, int
 
      if( !Precedence(times[id_time_i], times[id_time_j]))
      {
+////	if(id_class_j == 362 || id_class_j == 363)cout << "qqqq"<<endl;
 	 violatedTime = true;
      }
   }
@@ -716,7 +771,6 @@ int TimeTablingProblem::implicit_room_constraints(vector< vector<int> > &Graph_H
 	if( x_var_room[i]  == NOT_SET) continue;    
 	room_to_class[x_var_room[i]].push_back(i);
     }
-
     for(int id_class_i = 0; id_class_i < classes.size(); id_class_i++) //check each class
     {
 //	  if(invalid_variables[id_class_i]) continue;
@@ -746,6 +800,8 @@ int TimeTablingProblem::implicit_room_constraints(vector< vector<int> > &Graph_H
 		{
 	           Graph_Hard_Constraints[id_class_i].push_back(id_class_j);
 		   Incumpled_room_constraints++;
+		   invalid_variables[id_class_i]=true;
+		   invalid_variables[id_class_j]=true;
 		}
 	    }
 	    
@@ -753,32 +809,66 @@ int TimeTablingProblem::implicit_room_constraints(vector< vector<int> > &Graph_H
    return Incumpled_room_constraints;
 }
 
-int TimeTablingProblem::hard_constraints_by_pairs(vector<vector<int> > &Graph_Hard_Constraints, vector<bool> &unavailable)
+int TimeTablingProblem::hard_constraints_by_pairs(vector<vector<int> > &Graph_Hard_Constraints, vector<bool> &invalid_variables)
 {
-    int cont = 0;
-    for(int i = 0; i < classes.size(); i++)
-    {
-	if( unavailable[i])continue;
-	for(int d = 0; d < distributions_by_class[i].size();d++)
+  long long distribution_hard_penalizations  = 0;
+
+  for(int k = 0; k < pair_hard_distributions.size(); k++)
+  {
+     Distribution distribution_k = distributions[ pair_hard_distributions[k]];
+     for(int i = 0; i < distribution_k.classes.size(); i++)
+     {
+        for(int j = i+1; j < distribution_k.classes.size(); j++)
 	{
-	   int id_distribution = distributions_by_class[i][d];
-           Distribution distribution_k = distributions[id_distribution];
-	   if(! distribution_k.required) continue;
-	   if( !distribution_k.pair) continue;
-	   for(int j = 0; j < distribution_k.classes.size(); j++)
-	   {
-	        int id_class = distribution_k.classes[j];
-		   if(i == id_class)continue;
-	      int isviolated = (int)penalize_pair(i, id_class, id_distribution);
-	      if( isviolated)
-	      {
-		Graph_Hard_Constraints[i].push_back(id_class);
-		cont++;
-	      }
-	   }
+	   int id_class_i = distribution_k.classes[i];
+	   int id_class_j = distribution_k.classes[j];
+//	   if(invalid_variables[id_class_i] || invalid_variables[id_class_j]) continue;
+	   long long current_value = penalize_pair(id_class_i, id_class_j, pair_hard_distributions[k]);
+         if(current_value) 
+	 {
+		  cout << id_class_i+1 << "  "<<id_class_j +1<<" "<<current_value<< " " <<distribution_k.type <<endl;
+//		Graph_Hard_Constraints[id_class_i].push_back(id_class_j);
+//		Graph_Hard_Constraints[id_class_j].push_back(id_class_i);
+	    invalid_variables[id_class_i] = true;
+	    invalid_variables[id_class_j] = true;
+
+	   distribution_hard_penalizations +=  current_value;
+	  }
+	//	cout << distribution_soft_penalizations <<endl;
 	}	
-    }
-    return cont;
+     }
+  }
+
+   return distribution_hard_penalizations;
+
+
+
+////////////////
+//    int cont = 0;
+//    for(int i = 0; i < classes.size(); i++)
+//    {
+//	if( invalid_variables[i])continue;
+//	for(int d = 0; d < distributions_by_class[i].size();d++)
+//	{
+//	   int id_distribution = distributions_by_class[i][d];
+//           Distribution distribution_k = distributions[id_distribution];
+//	   if(! distribution_k.required) continue;
+//	   if( !distribution_k.pair) continue;
+//	   for(int j = 0; j < distribution_k.classes.size(); j++)
+//	   {
+//	        int id_class = distribution_k.classes[j];
+//		   if(i == id_class)continue;
+//	      int isviolated = (int)penalize_pair(i, id_class, id_distribution);
+//	      if( isviolated)
+//	      {
+//		//|:Graph_Hard_Constraints[i].push_back(id_class);
+//		Graph_Hard_Constraints[id_class].push_back(i);
+//		cont++;
+//	      }
+//	   }
+//	}	
+//    }
+//    return cont;
 }
 
 int TimeTablingProblem::overall_hard_constraints(vector<vector<int> > &Graph_Hard_Constraints, vector<bool> &invalid_variables)
@@ -812,9 +902,10 @@ int TimeTablingProblem::overall_soft_constraints(vector<bool> &invalid_variables
 	if(distribution_k.pair)continue;
 	 int isviolated = penalize_overall(all_soft_distributions[k], Graph_Hard_Constraints, invalid_variables); 
 	cont += isviolated;
-//	cout << "isvio " <<isviolated << " " <<distribution_k.type <<endl;
+	if(isviolated)
+	cout << "isvio " <<isviolated << " " <<distribution_k.type <<endl;
     }
-	cout <<"°°°° "<<cont<<endl;
+	//nncout <<"°°°° "<<cont<<endl;
     return cont;
 }
 
@@ -839,11 +930,13 @@ long long TimeTablingProblem::soft_constraints_by_pairs(vector<bool> &assigned)
 
 	   distribution_soft_penalizations +=  current_value;
 	  }
-	//	cout << distribution_soft_penalizations <<endl;
 	}	
      }
   }
 
+
+
+///////////////////
    return distribution_soft_penalizations;
 }
 long long TimeTablingProblem::room_penalization(vector<bool> &invalid_variables)
@@ -862,8 +955,42 @@ long long TimeTablingProblem::time_penalization(vector<bool> &invalid_variables)
   long long time_penalization_v =0;
   for(int i = 0; i < x_var_time.size(); i++)
   {
-     if( invalid_variables[i] )    continue;
+     if( invalid_variables[i]  || classes[i].times.empty())    continue;
      time_penalization_v += times[x_var_time[i]].penalty;
   }
   return time_penalization_v;
+}
+
+void TimeTablingProblem::split_in_blocks(vector<vector<int> > &blocks, vector<int> &start_b, vector<int> &end_b, priority_queue< pair<int, pair<int, int> > > &pq, int S)
+{
+     vector<int> block;
+       int Block_start = -pq.top().first, Block_end = pq.top().second.first;
+	  int id_class = pq.top().second.second;
+	  block.push_back(id_class);
+	  pq.pop();
+
+	  while(!pq.empty()) //building blocks by requirements..
+	  {
+	     int current_start = -pq.top().first;
+	     int current_end = pq.top().second.first;
+	     int id_class = pq.top().second.second;
+	     pq.pop();
+	     if( Block_end + S < current_start )
+	     {
+		blocks.push_back(block);
+		start_b.push_back(Block_start);
+		end_b.push_back(Block_end);
+		
+		block.clear();
+		Block_start = current_start;
+	     }
+	     block.push_back(id_class);
+	     Block_end = max(Block_end,current_end);
+	  }
+	  if(!block.empty()){
+		 blocks.push_back(block);
+	 	 start_b.push_back(Block_start);
+		 end_b.push_back(Block_end);
+	}
+
 }
