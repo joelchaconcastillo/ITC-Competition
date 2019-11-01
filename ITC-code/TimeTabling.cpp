@@ -12,11 +12,40 @@ long long best = 1e16;
 TimeTablingProblem::TimeTablingProblem(string file){
   //loading the instance infor..
   Load(file);
+  x_var.resize(classes.size());
+  feasible_space();
+
   x_var_time.resize(classes.size());
   x_var_room.resize(classes.size(), NOT_SET);
   //linearization of the problem
   linearization();
 
+}
+void TimeTablingProblem::feasible_space()
+{
+  domain.resize(classes.size());
+  for(int ic = 0; ic < classes.size(); ic++)
+  {
+     for(int t = 0; t < classes[ic].times.size(); t++)
+     {
+	Time C_ti = times[classes[ic].times[t]];
+	for(int r = 0; r < classes[ic].rooms_c.size(); r++)
+	{
+	  bool flag_feasible = true;
+	  for(int l = 0; l < rooms[classes[ic].rooms_c[l]].unavailable.size(); l++)
+	  {
+	    Time C_tj = times[rooms[classes[ic].rooms_c[r]].unavailable[l]];
+	     if( Overlap(C_ti, C_tj))
+		{
+		 flag_feasible = false;
+		 break;
+		}
+	  }
+	 if(flag_feasible) 
+	   domain[ic].push_back(make_pair(classes[ic].times[t], classes[ic].rooms_c[r]));
+	}
+     }
+  }
 }
 void TimeTablingProblem::linearization()
 {
@@ -888,7 +917,6 @@ void TimeTablingProblem::split_in_blocks(vector<vector<int> > &blocks, vector<in
 	}
 
 }
-
 int TimeTablingProblem::student_penalization()
 {
   int student_penalization = 0;

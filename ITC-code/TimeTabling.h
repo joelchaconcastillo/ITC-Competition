@@ -98,6 +98,9 @@ class TimeTablingProblem{
 		
 		int student_penalization();
 
+		void feasible_space();
+
+
 		void split_in_blocks(vector<vector<int> > &blocks, vector<int> &start_b, vector<int> &end_b, priority_queue< pair<int, pair<int, int> > > &pq, int S);
 
 
@@ -186,8 +189,10 @@ class TimeTablingProblem{
 		unordered_map<int, unordered_map< bool, vector<int> > > distributions_by_feasibility;
 	        vector<int> x_var_time, x_var_room;
 		vector< vector<int> > x_var_student;
-		vector<vector<int>> linear_domain;
-		vector< vector<int>> from_table_to_class;
+ 		vector<int> x_var;
+		vector<vector<pair<int,int>>> domain;
+		vector< vector<int>> from_table_to_class, linear_domain;
+
 //		vector<pair<int, int>>
 
 };
