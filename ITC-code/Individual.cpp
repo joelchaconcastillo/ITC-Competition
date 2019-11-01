@@ -6,96 +6,77 @@
 using namespace std;
 
 ////////////////////////////Individual information ////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////
-pair<long long, int> Individual::calculateFitness(){
+pair<long long, int> Individual::calculateFitness(vector<int> &x_ind){
 
+   long long hard_constraints_violated = 0;
+   for(int i = 0; i < TTP->from_table_to_class[TIMES].size() ; i++)
+   {
+     TTP->x_var_time[TTP->from_table_to_class[TIMES][i]] = x_ind[i];
+   }
 
+   for(int i = TTP->from_table_to_class[TIMES].size(), j = 0; i < TTP->from_table_to_class[TIMES].size()+ TTP->from_table_to_class[ROOMS].size()  ; i++, j++)
+   {
+     TTP->x_var_room[TTP->from_table_to_class[ROOMS][j]] = x_ind[i];
+   }
 
-int cont = 0;
-   int hard_constraints_violated = 0;
+    vector<bool> invalid_variables(TTP->x_var_room.size(), false); 
 
-//////////////////Hard distributions//////////////////////////////////////////////////
-   vector< vector<int> > Graph_Hard_Constraints(x_var_time.size());
-    ///A class cannot be placed in a room when its assigned time overlaps with an unavailability of the room or when there is other class placed in the room at an overlapping time.
-    ///When it happend a room is dropped out
-    vector<bool> invalid_variables(x_var_room.size(), false); 
-    TTP->x_var_time = x_var_time;
-    TTP->x_var_room = x_var_room;
-
-    hard_constraints_violated += TTP->implicit_room_constraints(Graph_Hard_Constraints, invalid_variables);
-    hard_constraints_violated += TTP->hard_constraints_by_pairs(Graph_Hard_Constraints, invalid_variables);
-    hard_constraints_violated += TTP->overall_hard_constraints(Graph_Hard_Constraints, invalid_variables);
-
-
-     int cont_unassigned_variables = 0;
-    ////Summary of unavailable variables...
-    for(int i = 0; i < x_var_time.size(); i++) //for each class
-    {
-	if(invalid_variables[i]) continue;
-	cout << "i: "<<i+1 <<endl;
-
-	for(int j = 0; j < Graph_Hard_Constraints[i].size(); j++)
-	{
-	 cout << Graph_Hard_Constraints[i][j] +1<<" ";
-	  if( Graph_Hard_Constraints[i][j] < i) continue;
-	  invalid_variables[Graph_Hard_Constraints[i][j]] = true;
-	}
-	cout <<endl;
-    }
-
-    
-
-//    for(int i = 0; i < x_var_time.size(); i++) //for each class
-//	if(invalid_variables[i]) cont_unassigned_variables++;
-//    cout <<"unasigned " <<cont_unassigned_variables<<endl;
-
-//    for(int i = 0; i < x_var_time.size(); i++) //for each class
-//	if(invalid_variables[i]) cout << i+1 <<endl;
+    hard_constraints_violated += TTP->implicit_room_constraints(invalid_variables);
+    hard_constraints_violated += TTP->hard_constraints_by_pairs(invalid_variables);
+    hard_constraints_violated += TTP->overall_hard_constraints(invalid_variables);
 
 
  long long distribution_soft_penalizations= 0;
-
-
     distribution_soft_penalizations+= TTP->soft_constraints_by_pairs(invalid_variables);
-    distribution_soft_penalizations+= TTP->overall_soft_constraints(invalid_variables, Graph_Hard_Constraints);
-	cout <<"soft "<< distribution_soft_penalizations <<endl;
-///  ///Checking distributions between pair classes..
+    distribution_soft_penalizations+= TTP->overall_soft_constraints(invalid_variables);
 
-///  ///Checking room penalizations..
-///  int assigned_variables = 0;
-  long long room_penalization_v = TTP->room_penalization(invalid_variables);
-    cout << "room " << room_penalization_v <<endl;
+ long long room_penalization_v = TTP->room_penalization(invalid_variables);
+ long long time_penalization_v = TTP->time_penalization(invalid_variables);
+long long student_penalization_v = student_penalization_v = TTP->student_penalization();
 ///
-///
-    long long time_penalization_v = TTP->time_penalization(invalid_variables);
-  
-cout << "time" << " " <<time_penalization_v <<endl;
-    long long student_penalization = 0; //check student conflicts...
-//  for(int i = 0; i < this->x_var_student.size(); i++)
-//  {
-//     if(TTP->conflicts_student(i,x_var_time, x_var_room ))
-//      student_penalization++;
-//  }
-///
-///  cout << "Total distributions penalty: " <<distribution_soft_penalizations <<endl;
-///  cout << "Total room penalty: "<< room_penalization <<endl;//*this->TTP->room_w  <<endl;
-///  cout << "Total time penalty: " << time_penalization*this->TTP->time_w <<endl;
-///  cout << "Total student conflicts: " << student_penalization*this->TTP->student_w <<endl;
-///
-  return make_pair(distribution_soft_penalizations*this->TTP->distribution_w + room_penalization_v*this->TTP->room_w + time_penalization_v*this->TTP->time_w + student_penalization*this->TTP->student_w, cont_unassigned_variables);
+  long long TotalFitness = distribution_soft_penalizations*this->TTP->distribution_w;
 
+   TotalFitness += room_penalization_v*this->TTP->room_w;
+   TotalFitness += time_penalization_v*this->TTP->time_w;
+   TotalFitness += student_penalization_v*this->TTP->student_w;
+//   vector<int> hard_classes;
+//  for(int i = 0; i < invalid_variables.size(); i++) if(invalid_variables[i]) hard_classes.push_back(i);
+///
+  return make_pair( TotalFitness, hard_constraints_violated);
 }
-
-//Individual bestI;
 
 void printBest(){
 	
 }
 void Individual::localSearch(){
+  
+bool hardsolved = false;
+ pair<long long, int > x_p = calculateFitness(x_var);
+ long long best = x_p.first + x_p.second*10000;
+ bool good_variable = false;
+ int idx_var = -1;//rand()%x_var.size();
+ while(!hardsolved)
+ {
+    vector<int> cu_var = x_var;
+   for(int i = 0; i < (rand()%3+1); i++)
+   {
+    idx_var = rand()%x_var.size();
+    int size_domain =  TTP->linear_domain[idx_var].size();
+    cu_var[idx_var] =  TTP->linear_domain[idx_var][rand()%size_domain];
+   }
+
+     pair<long long,int> p = calculateFitness(cu_var);
+     long long current = p.first + p.second*10000;
+     if(current < best)
+	{
+	   best = current;
+	   x_var = cu_var;
+	 cout << best <<endl;
+	}
+//	else idx_var=-1;
+    if(p.second ==0) hardsolved = true;
+
+ }
 }
 
 int Individual::getDistance(Individual &ind){
@@ -109,21 +90,10 @@ void Individual::print(){
 }
 void Individual::initialization()
 {
-
-   //Preparing domain-space... PENDIENTE
-
-   //////
-   for(int i = 0; i < this->x_var_time.size(); i++)
+   this->x_var.resize(TTP->linear_domain.size());
+   for(int i = 0;i < TTP->linear_domain.size(); i++)
    {
-     if( this->TTP->classes[i].times.empty())  continue;
-      x_var_time[i] = this->TTP->classes[i].times[rand()% this->TTP->classes[i].times.size()];
-      if( this->TTP->classes[i].rooms_c.empty()  )
-	x_var_room[i] = NOT_SET;
-      else
-        x_var_room[i] = this->TTP->classes[i].rooms_c[rand()% this->TTP->classes[i].rooms_c.size()].first;
+	int size_domain = TTP->linear_domain[i].size();
+	this->x_var[i] = TTP->linear_domain[i][rand()%size_domain];
    }
-//   for(int i = 0; i < this->x_var_student.size(); i++)
-//   {
-//        
-//   }
 }

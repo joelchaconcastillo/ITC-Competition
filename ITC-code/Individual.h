@@ -9,6 +9,11 @@ void printBest();
 
 class Individual{
 	public:
+		struct fitness
+		{
+		   long long fitness_v;
+		   long long room_penalization_v, time_penalization_v, student_penalization_v, soft_distributions_v, hard_distributions_v;
+		};
 		Individual(TimeTablingProblem &TTP_){
 		  this->TTP= &TTP_;
 		  x_var_time.resize(TTP->classes.size(), NOT_SET);
@@ -33,13 +38,13 @@ class Individual{
 		void Mutation(double pm);
 		void Crossover(Individual &ind);
 		void localSearch();
-		pair<long long, int> calculateFitness();
+		pair<long long, int> calculateFitness(vector<int> &x_ind);
 		void print();
 		long long fitness;
 		//static TimeTablingProblem *TimeTablingproblem;
 		TimeTablingProblem *TTP;
  		int dist;
-		vector<int> x_var_time, x_var_room;
+		vector<int> x_var, x_var_time, x_var_room;
 		vector< vector<int> > x_var_student;
 };
 

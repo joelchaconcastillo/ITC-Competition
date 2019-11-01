@@ -30,7 +30,8 @@ using namespace std;
 #define ROOM_OVERLAP 24
 #define NOT_SET -1 //this indicates that a variable room is not assigned
 #define NOT_CHECK -2 //this indicates that a variable its OK 
-
+#define TIMES 0
+#define ROOMS 1
 void printBest();
 
 
@@ -68,7 +69,7 @@ class TimeTablingProblem{
                  //vector<Time> times;
 		 vector<int > times;
                  unordered_map <int, int>  p_room_penalty; // penalty to asign room <id_room, penalty>
-		 vector<pair<int, int> > rooms_c; // id room and penalty
+		 vector<int> rooms_c, penalty_c;
                  bool rooms; // a class could have an unset room ...
               };
 		TimeTablingProblem(string file);
@@ -79,27 +80,23 @@ class TimeTablingProblem{
 
 
 		long long penalize_pair( int id_class_i, int id_class_j, int id_distribution);
-		long long penalize_overall( int id_distribution, vector<vector<int>>&Graph_Hard_Constraints, vector<bool> &invalid_variables);
+		long long penalize_overall( int id_distribution, vector<bool> &invalid_variables);
 		bool conflicts_student(int id_student);
 
-		int implicit_room_constraints(vector<vector<int>> &Graph_Hard_Constraints, vector<bool> &grid);
-//		int hard_constraints_by_pairs(vector<int> &x_var_time_, vector<int> &x_var_room_, vector<vector<int>> &Graph_Hard_Constraints);
-		int hard_constraints_by_pairs( vector<vector<int> > &Graph_Hard_Constraints, vector<bool> &grid2);
+		int implicit_room_constraints(vector<bool> &invalid_variables);
+		long long hard_constraints_by_pairs(vector<bool> &invalid_variables);
 
+		long long overall_hard_constraints(vector<bool> &unavailable);
 
-		int overall_hard_constraints( vector<vector<int> > &Graph_Hard_Constraints, vector<bool> &unavailable);
+		long long overall_soft_constraints(vector<bool> &invalid_variables);
 
-		int overall_soft_constraints(vector<bool> &invalid_variables,  vector<vector<int> > &Graph_Hard_Constraints );
-
-		long long soft_constraints_by_pairs(vector<bool>  &assigned);
-
-
+		long long soft_constraints_by_pairs(vector<bool>  &invalid_variables);
 
 		long long time_penalization(vector<bool> &invalid_variables);
 
 		long long room_penalization(vector<bool> &invalid_variables);
-
-
+		
+		int student_penalization();
 
 		void split_in_blocks(vector<vector<int> > &blocks, vector<int> &start_b, vector<int> &end_b, priority_queue< pair<int, pair<int, int> > > &pq, int S);
 
@@ -162,7 +159,7 @@ class TimeTablingProblem{
 	//	long long int get_var_room_size();
 		void loading_example();
 		void save_xml(vector<int> &x_var_room, vector<int> &x_var_time, vector< vector<int> > &x_var_student);
-
+		void linearization();
 
 
 		///problem information header
@@ -189,6 +186,9 @@ class TimeTablingProblem{
 		unordered_map<int, unordered_map< bool, vector<int> > > distributions_by_feasibility;
 	        vector<int> x_var_time, x_var_room;
 		vector< vector<int> > x_var_student;
+		vector<vector<int>> linear_domain;
+		vector< vector<int>> from_table_to_class;
+//		vector<pair<int, int>>
 
 };
 #endif

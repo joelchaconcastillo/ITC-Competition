@@ -18,8 +18,8 @@ l=1572467997;
 
 	///string file = string(argv[1]);
  //Test instances..
-	//string file = "Instances/public/wbg-fal10.xml";
-	//string file = "Instances/public/lums-sum17.xml";
+	string file = "Instances/public/wbg-fal10.xml";
+//	string file = "Instances/public/lums-sum17.xml";
 	//string file = "Instances/public/bet-sum18.xml";
 	//string file = "Instances/public/pu-cs-fal07.xml";
 	//string file = "Instances/public/pu-llr-spr07.xml"; //***** wrong instance
@@ -28,7 +28,7 @@ l=1572467997;
 	//string file = "Instances/public/agh-fis-spr17.xml";
 	//string file = "Instances/public/agh-ggis-spr17.xml";
 	//string file = "Instances/public/bet-fal17.xml";
-	string file = "Instances/public/iku-fal17.xml";
+	//string file = "Instances/public/iku-fal17.xml";
 	//string file = "Instances/public/mary-spr17.xml";
 	//string file = "Instances/public/muni-fi-spr16.xml";
 	//string file = "Instances/public/muni-fsps-spr17.xml";
@@ -58,9 +58,9 @@ l=1572467997;
 	//
 	///Temporal para probar la busqueda local...
 	  Individual indiv(TTP);
-
-	  pair<long long, int > p = indiv.calculateFitness();
+	  pair<long long, int > p = indiv.calculateFitness(indiv.x_var);
+  	  indiv.localSearch();
 	  cout <<  p.first<< " " <<  p.second<<endl;
-          TTP.save_xml(indiv.x_var_room, indiv.x_var_time, indiv.x_var_student);
+          TTP.save_xml(TTP.x_var_room, TTP.x_var_time, TTP.x_var_student);
 	  return 0;
 }
