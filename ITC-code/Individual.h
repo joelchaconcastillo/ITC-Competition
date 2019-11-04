@@ -16,10 +16,8 @@ class Individual{
 		};
 		Individual(TimeTablingProblem &TTP_){
 		  this->TTP= &TTP_;
-		  x_var_time.resize(TTP->classes.size(), NOT_SET);
-		  x_var_room.resize(TTP->classes.size(), NOT_SET);
-		  x_var_student.resize(TTP->students.size());
-		  // exit(0);
+		  this->domain = TTP->domain;
+		
 		  //initialization....
 		  initialization();
 		  //Load example solution to check the evaluator...
@@ -38,14 +36,14 @@ class Individual{
 		void Mutation(double pm);
 		void Crossover(Individual &ind);
 		void localSearch();
-		pair<long long, int> calculateFitness(vector<int> &x_ind);
+		pair<long long, int> calculateFitness(vector<pair<int,int>> &x_ind);
 		void print();
 		long long fitness;
 		//static TimeTablingProblem *TimeTablingproblem;
 		TimeTablingProblem *TTP;
  		int dist;
-		vector<int> x_var, x_var_time, x_var_room;
-		vector< vector<int> > x_var_student;
+		vector<pair<int, int>> x_var;
+		vector<vector<pair<int,int>>> domain;
 };
 
 #endif

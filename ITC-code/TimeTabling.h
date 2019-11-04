@@ -28,10 +28,10 @@ using namespace std;
 #define DIFFERENTROOM 22
 #define NOTOVERLAP 23
 #define ROOM_OVERLAP 24
-#define NOT_SET -1 //this indicates that a variable room is not assigned
 #define NOT_CHECK -2 //this indicates that a variable its OK 
 #define TIMES 0
 #define ROOMS 1
+#define NOT_ROOM -1
 void printBest();
 
 
@@ -119,9 +119,9 @@ class TimeTablingProblem{
 		inline bool DifferentRoom(int id_room_i, int id_room_j){  return ( id_room_i != id_room_j);}
 		inline bool SameAttendees(Time &C_ti, Time &C_tj, int id_room_i, int id_room_j)
 		{
-//			if( id_room_i == NOT_SET || id_room_j==NOT_SET) return false;
-			int  traveling_time_i_j = (id_room_i==NOT_SET)?0:rooms[id_room_i].time_travel_to_room[id_room_j];
-			int  traveling_time_j_i = (id_room_j==NOT_SET)?0:rooms[id_room_j].time_travel_to_room[id_room_i];
+//			if( id_room_i == NOT_ROOM || id_room_j==NOT_ROOM) return false;
+			int  traveling_time_i_j = (id_room_i==NOT_ROOM)?0:rooms[id_room_i].time_travel_to_room[id_room_j];
+			int  traveling_time_j_i = (id_room_j==NOT_ROOM)?0:rooms[id_room_j].time_travel_to_room[id_room_i];
 			bool c1 = (C_ti.end + traveling_time_i_j ) <= C_tj.start ;
 			bool c2 = (C_tj.end + traveling_time_j_i) <= C_ti.start ;
         		bool c3 = ((C_ti.days & C_tj.days)==0);
@@ -162,14 +162,14 @@ class TimeTablingProblem{
 		long long int get_var_room_size();
 		void loading_example();
 		void save_xml(vector<int> &x_var_room, vector<int> &x_var_time, vector< vector<int> > &x_var_student);
-		void linearization();
-
 
 		///problem information header
 		int nrDays, slotsPerDay, nrWeeks;
 		string name;
 		///optimization information header
 		int time_w, room_w, distribution_w, student_w; //specifications of weights for the optimization criteria, i.e. each sum has a weight factor..
+
+		unordered_map<int, int> idx_class, class_idx;
 
 		vector <Room> rooms;
 		vector <Time> times; 

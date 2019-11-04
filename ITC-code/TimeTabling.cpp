@@ -14,11 +14,15 @@ TimeTablingProblem::TimeTablingProblem(string file){
   Load(file);
   x_var.resize(classes.size());
   feasible_space();
-
+///for(int i = 0 ; i  < domain.size(); i++)
+/// cout << domain[i].size()<<endl; 
+///
+///for(int i = 0 ; i  < domain[class_idx[0]].size(); i++)
+///   {
+///	   cout << domain[class_idx[0]][i].first << " " << domain[class_idx[0]][i].second;
+///   }
   x_var_time.resize(classes.size());
-  x_var_room.resize(classes.size(), NOT_SET);
-  //linearization of the problem
-  linearization();
+  x_var_room.resize(classes.size(), NOT_ROOM);
 
 }
 void TimeTablingProblem::feasible_space()
@@ -28,40 +32,27 @@ void TimeTablingProblem::feasible_space()
   {
      for(int t = 0; t < classes[ic].times.size(); t++)
      {
-	Time C_ti = times[classes[ic].times[t]];
+	int id_time = classes[ic].times[t];
+	Time C_ti = times[id_time];
 	for(int r = 0; r < classes[ic].rooms_c.size(); r++)
 	{
 	  bool flag_feasible = true;
-	  for(int l = 0; l < rooms[classes[ic].rooms_c[l]].unavailable.size(); l++)
+	  int id_room = classes[ic].rooms_c[r];
+	  for(int l = 0; l < rooms[id_room].unavailable.size(); l++)
 	  {
-	    Time C_tj = times[rooms[classes[ic].rooms_c[r]].unavailable[l]];
+	    Time C_tj = times[rooms[id_room].unavailable[l]];
 	     if( Overlap(C_ti, C_tj))
 		{
 		 flag_feasible = false;
 		 break;
 		}
 	  }
-	 if(flag_feasible) 
-	   domain[ic].push_back(make_pair(classes[ic].times[t], classes[ic].rooms_c[r]));
+	  if(flag_feasible) 
+	  domain[ic].push_back(make_pair(id_time, id_room));
 	}
+	if(classes[ic].rooms_c.empty()) domain[ic].push_back(make_pair(id_time, NOT_ROOM));
      }
   }
-}
-void TimeTablingProblem::linearization()
-{
-  from_table_to_class.resize(2);
-  for(int i = 0; i < classes.size(); i++) 
-  {
-     if(classes[i].times.empty() ) continue;
-     from_table_to_class[TIMES].push_back(i);
-     linear_domain.push_back(classes[i].times);
-  }  
-  for(int i = 0; i < classes.size(); i++) 
-   {
-     if(classes[i].rooms_c.empty() ) continue;
-     from_table_to_class[ROOMS].push_back(i);
-     linear_domain.push_back(classes[i].rooms_c);
-   }
 }
 void TimeTablingProblem::Load(string file)
 {
@@ -101,7 +92,8 @@ void TimeTablingProblem::Load(string file)
 		NSubparts = max(NSubparts, isubpart.attribute("id").as_int());
               for (pugi::xml_node iclass:isubpart) //for each class
 	      {
-		 NClasses= max(NClasses, iclass.attribute("id").as_int());
+		 idx_class[NClasses] = iclass.attribute("id").as_int();
+		 class_idx[iclass.attribute("id").as_int()] = NClasses++;
               }
 	   }
 	}
@@ -165,18 +157,17 @@ void TimeTablingProblem::Load(string file)
 	      int id_subpart = isubpart.attribute("id").as_int()-1;
               for (pugi::xml_node iclass:isubpart) //for each class
 	      {
-	         int id_class = iclass.attribute("id").as_int()-1;
+	         int id_class = class_idx[iclass.attribute("id").as_int()];
 		 Class str_class;
-		 str_class.limit = iclass.attribute("limit").as_int();
-		 str_class.Parent_id = iclass.attribute("parent").as_int()-1;
+		 str_class.limit = iclass.attribute("limit").as_int(); 
+		 str_class.Parent_id = class_idx[iclass.attribute("parent").as_int()];
 		 str_class.rooms = ( !strcmp(iclass.attribute("room").value(), "false") )? false:true;
-		
                  for (pugi::xml_node inside_class:iclass) //for each attribute inside to class..
 		 {
 		      if( !strcmp(inside_class.name(), "room") )
 		      {
-			str_class.p_room_penalty[inside_class.attribute("id").as_int()-1] = inside_class.attribute("penalty").as_int();
-			str_class.rooms_c.push_back(inside_class.attribute("id").as_int()-1);
+			str_class.p_room_penalty[inside_class.attribute("id").as_int()-1] = inside_class.attribute("penalty").as_int(); //travel time penalty
+			str_class.rooms_c.push_back(inside_class.attribute("id").as_int()-1); 
 			str_class.penalty_c.push_back(inside_class.attribute("penalty").as_int());
                       }
 		      else if( !strcmp(inside_class.name(),"time"))
@@ -196,7 +187,7 @@ void TimeTablingProblem::Load(string file)
 		 }
 		 this->classes[id_class] = str_class;
 //		 this->classes.push_back(str_class);
-		 subpart_to_class.push_back(iclass.attribute("id").as_int()-1);
+		 subpart_to_class.push_back(id_class);
               }
 //	      this->subpart.push_back(subpart_to_class);
 	      this->subpart[id_subpart] = subpart_to_class;
@@ -224,7 +215,7 @@ void TimeTablingProblem::Load(string file)
        int order = 0;
        for (pugi::xml_node class_in_distribution:distribution_i)
        {
-	  int id_class = class_in_distribution.attribute("id").as_int()-1;
+	  int id_class = class_idx[class_in_distribution.attribute("id").as_int()];
           str_distribution.classes.push_back(id_class);
           str_distribution.order_classes[id_class] = order++;
           distributions_by_class[id_class].push_back(distributions.size());
@@ -494,12 +485,12 @@ long long TimeTablingProblem::penalize_pair( int id_class_i, int id_class_j, int
   
 //   if( dist.type == SAMESTART || dist.type == SAMETIME || dist.type == SAMEDAYS || dist.type == SAMEWEEKS || dist.type == OVERLAP || dist.type == SAMESTART || dist.type == PRECEDENCE || dist.type == WORKDAY || dist.type == MINGAP || dist.type == SAMEATTENDEES)
 //  {
-//     if(x_var_room[id_class_i] == NOT_SET) return 1;
-//     else if( x_var_room[id_class_j] == NOT_SET ) return 1;//dist.type;
+//     if(x_var_room[id_class_i] == NOT_ROOM) return 1;
+//     else if( x_var_room[id_class_j] == NOT_ROOM ) return 1;//dist.type;
 //  }
 
-//  if(x_var_room[id_class_i] == NOT_SET || x_var_room[id_class_j] == NOT_SET ) return 0;
-//  if(x_var_time[id_class_i] == NOT_SET || x_var_time[id_class_j] == NOT_SET ) return 0;
+//  if(x_var_room[id_class_i] == NOT_ROOM || x_var_room[id_class_j] == NOT_ROOM ) return 0;
+//  if(x_var_time[id_class_i] == NOT_ROOM || x_var_time[id_class_j] == NOT_ROOM ) return 0;
 
    int id_time_i = x_var_time[id_class_i];
    int id_time_j = x_var_time[id_class_j];
@@ -602,16 +593,16 @@ long long TimeTablingProblem::penalize_pair( int id_class_i, int id_class_j, int
 	  {
 		  if( violatedTime)
 		{
-	//	this->x_var_time[id_class_i] = 	NOT_SET;
-	//	this->x_var_time[id_class_j] = 	NOT_SET;
-	//	this->x_var_room[id_class_i] = 	NOT_SET;
-	//	this->x_var_room[id_class_j] = 	NOT_SET;
+	//	this->x_var_time[id_class_i] = 	NOT_ROOM;
+	//	this->x_var_time[id_class_j] = 	NOT_ROOM;
+	//	this->x_var_room[id_class_i] = 	NOT_ROOM;
+	//	this->x_var_room[id_class_j] = 	NOT_ROOM;
 
 		}
 		  else if(violatedRoom)
 		  {
-	  //      this->x_var_room[id_class_i] = 	NOT_SET;
-	//	this->x_var_room[id_class_j] = 	NOT_SET;
+	  //      this->x_var_room[id_class_i] = 	NOT_ROOM;
+	//	this->x_var_room[id_class_j] = 	NOT_ROOM;
 		}
 	  }
 	  
@@ -632,6 +623,7 @@ void TimeTablingProblem::save_xml(vector<int> &x_var_room, vector<int> &x_var_ti
     node.append_attribute("cores") = "1";
 
     vector< vector<int> > class_to_student(x_var_room.size());
+   
     
     for(int i = 0; i < x_var_student.size(); i++)
     {
@@ -644,10 +636,8 @@ void TimeTablingProblem::save_xml(vector<int> &x_var_room, vector<int> &x_var_ti
     for(int i = 0; i < class_to_student.size(); i++)
     {
         pugi::xml_node class_i = node.append_child("class");
-        class_i.append_attribute("id") = i+1;
+        class_i.append_attribute("id") = idx_class[i];
 
-	if(x_var_time[i] != NOT_SET )
-	{
 	unsigned long int days = times[x_var_time[i]].days;
 	unsigned long int weeks = times[x_var_time[i]].weeks;
 	int start = times[x_var_time[i]].start;
@@ -655,14 +645,13 @@ void TimeTablingProblem::save_xml(vector<int> &x_var_room, vector<int> &x_var_ti
 	for(int k = nrDays-1; k >=0 ; k--) str_days.push_back(( (days&(1<<k)) != 0)? '1':'0');
         class_i.append_attribute("days") = str_days.c_str();
 
-
         class_i.append_attribute("start") = start;
 	string str_weeks = "";
 	for(int k = nrWeeks-1; k >=0 ; k--) str_weeks.push_back(( (weeks&(1<<k)) != 0)? '1':'0');
 
         class_i.append_attribute("weeks") = str_weeks.c_str();
-	}
-	if(x_var_room[i] != NOT_SET )
+
+	if(x_var_room[i] != NOT_ROOM )
         class_i.append_attribute("room") = x_var_room[i]+1;
 
 	for(int j = 0; j < class_to_student[i].size(); j++)
@@ -758,28 +747,28 @@ int TimeTablingProblem::implicit_room_constraints(vector<bool> &invalid_variable
     int Incumpled_room_constraints = 0;
     for(int i = 0; i < classes.size(); i++) // reordering classes by rooms...
     {
-	if( x_var_room[i]  == NOT_SET) continue;    
+	if( x_var_room[i]  == NOT_ROOM) continue;    
 	room_to_class[x_var_room[i]].push_back(i);
     }
     for(int id_class_i = 0; id_class_i < classes.size(); id_class_i++) //check each class
     {
-	   if(x_var_room[id_class_i] == NOT_SET) continue;
+	   if(x_var_room[id_class_i] == NOT_ROOM) continue;
              int id_room_i = x_var_room[id_class_i];
 	     Time C_ti = times[x_var_time[id_class_i]];
-	   for(int j = 0; j < rooms[id_room_i].unavailable.size(); j++)
-	    {
-		Time C_tj = times[rooms[id_room_i].unavailable[j]];
-		if(Overlap(C_ti, C_tj))
-		{
-		   invalid_variables[id_class_i] = true;
-		   Incumpled_room_constraints++;
-		}
-	    }
+	   ///for(int j = 0; j < rooms[id_room_i].unavailable.size(); j++)
+	   /// {
+	   ///     Time C_tj = times[rooms[id_room_i].unavailable[j]];
+	   ///     if(Overlap(C_ti, C_tj))
+	   ///     {
+	   ///        invalid_variables[id_class_i] = true;
+	   ///        Incumpled_room_constraints++;
+	   ///     }
+	   /// }
 	    for(int j = 0; j < room_to_class[id_room_i].size(); j++)
 	    {
 		int id_class_j = room_to_class[id_room_i][j];
 
-		if( x_var_room[id_class_j] == NOT_SET) continue;
+		if( x_var_room[id_class_j] == NOT_ROOM) continue;
 
 		if( id_class_i == id_class_j ) continue;
 	
@@ -868,7 +857,6 @@ long long TimeTablingProblem::room_penalization(vector<bool> &invalid_variables)
   long long room_penalization_v = 0;
 for(int i = 0; i < classes.size(); i++)
   {
-	if( invalid_variables[i]) continue;
      room_penalization_v += classes[i].p_room_penalty[x_var_room[i]];
   }
   return room_penalization_v;
@@ -878,7 +866,7 @@ long long TimeTablingProblem::time_penalization(vector<bool> &invalid_variables)
   long long time_penalization_v =0;
   for(int i = 0; i < x_var_time.size(); i++)
   {
-     if( invalid_variables[i]  || classes[i].times.empty())    continue;
+     if(classes[i].times.empty())    continue;
      time_penalization_v += times[x_var_time[i]].penalty;
   }
   return time_penalization_v;
