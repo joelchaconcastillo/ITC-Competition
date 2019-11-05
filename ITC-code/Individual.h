@@ -35,10 +35,14 @@ class Individual{
 		int getDistance(Individual &ind);
 		void Mutation(double pm);
 		void Crossover(Individual &ind);
-		void localSearch_for_ILS(int maxite, vector<pair<int, int>> &current_indiv, vector<pair<int, int>> &best_indiv);
+
+		vector<pair<int, int>> localSearch_for_ILS(int maxite, vector<pair<int, int>> &base_var);
+		vector<pair<int,int>>iterated_forward_search(int maxite, vector<pair<int, int >> &base_indiv);
 		inline long long mix_penalizations(pair<long long, long long> p){ return p.first+p.second*10000;}
 		void iterated_local_search();
 		void localSearch();
+
+		inline pair<int, int> random_domain(int idx_var){return domain[idx_var][rand()%domain[idx_var].size()];}
 
 		pair<long long, long long> calculateFitness(vector<pair<int,int>> &x_ind);
 		pair<long long, long long> incremental_evaluation(vector<int> &classes_to_check, vector<pair<int,int>> &x_ind);

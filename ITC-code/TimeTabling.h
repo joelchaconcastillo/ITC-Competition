@@ -94,6 +94,9 @@ class TimeTablingProblem{
 		int student_penalization();
 		pair<long long, long long> incremental_evaluation_by_classes(vector<int> &selected_classes);
 
+		vector<int> unassign_hard_distributions(vector<pair<int, int>> &x_var);
+
+
 		void feasible_space();
 
 
