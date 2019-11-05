@@ -80,23 +80,19 @@ class TimeTablingProblem{
 
 
 		long long penalize_pair( int id_class_i, int id_class_j, int id_distribution);
-		long long penalize_overall( int id_distribution, vector<bool> &invalid_variables);
+		long long penalize_overall( int id_distribution);
 		bool conflicts_student(int id_student);
 
-		int implicit_room_constraints(vector<bool> &invalid_variables);
-		long long hard_constraints_by_pairs(vector<bool> &invalid_variables);
+		int implicit_room_constraints();
+		long long Hard_constraints();
+		long long Soft_constraints();
 
-		long long overall_hard_constraints(vector<bool> &unavailable);
+		long long time_penalization();
 
-		long long overall_soft_constraints(vector<bool> &invalid_variables);
-
-		long long soft_constraints_by_pairs(vector<bool>  &invalid_variables);
-
-		long long time_penalization(vector<bool> &invalid_variables);
-
-		long long room_penalization(vector<bool> &invalid_variables);
+		long long room_penalization();
 		
 		int student_penalization();
+		pair<long long, long long> incremental_evaluation_by_classes(vector<int> &selected_classes);
 
 		void feasible_space();
 
