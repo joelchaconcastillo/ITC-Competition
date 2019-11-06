@@ -50,24 +50,41 @@ void Individual::iterated_local_search()
 {
   int maxite = 100000;
   //Apply local search to the individual
-  vector<pair<int, int>> current_indiv = localSearch_for_ILS(maxite, x_var), best_indiv = x_var;
-  long long best_f = mix_penalizations(calculateFitness(current_indiv)); 
+  vector<pair<int, int>> current_indiv = x_var, best_indiv = x_var;
+  long long best_f = mix_penalizations(calculateFitness(best_indiv)); 
   while(true)
   {
      //perturb..
-        current_indiv = iterated_forward_search(maxite, current_indiv);
+  //      current_indiv = iterated_forward_search(maxite, current_indiv);
      //apply local-search..
-	current_indiv = localSearch_for_ILS(maxite, current_indiv);
-	long long current_f = mix_penalizations(calculateFitness(current_indiv)); 
-	if( current_f < best_f)
+        current_indiv = localSearch_for_ILS(maxite, current_indiv);
+          cout << best_f << "----" <<endl;
+        long long current_f = mix_penalizations(calculateFitness(current_indiv)); 
+        if( current_f < best_f)
         {
-	   current_indiv = best_indiv;
-	   best_f = current_f;
-	  cout << best_f << "----" <<endl;
+           current_indiv = best_indiv;
+           best_f = current_f;
+          cout << best_f << "----" <<endl;
         }
+	current_indiv = best_indiv;
+	perturb(current_indiv);
   }
 }
-
+void Individual::perturb(vector<pair<int, int>> &current_indiv)
+{
+  vector<int> unassigned = TTP->unassign_hard_distributions(current_indiv);
+  int idx_var, idx_unassigned=-1;
+  ///select a variable..
+  if( !unassigned.empty() ) 
+    {
+       idx_unassigned = rand()%unassigned.size();
+       idx_var = unassigned[idx_unassigned];
+    }
+    else idx_var =  rand()%domain.size();
+   //select a value 
+   pair<int, int> value = random_domain(idx_var);
+   current_indiv[idx_var] = value;
+}
 vector<pair<int, int>> Individual::localSearch_for_ILS(int maxite, vector<pair<int, int>> &base_var)
 {
   vector<pair<int, int>> current_indiv=base_var, best_indiv = base_var;
@@ -77,18 +94,17 @@ vector<pair<int, int>> Individual::localSearch_for_ILS(int maxite, vector<pair<i
  int variables_to_modifiy=1;
  vector<int> variables(variables_to_modifiy); 
   int cont = 0;
-int i=0;
+int v=0;
  while(cont++  < maxite)
  {
     //looking a variable 
-    int idx_var = perm[i++];
-     i %= rand()%domain.size();
+    int idx_var = perm[v++];
+     v %= domain.size();
     variables[0]= idx_var;
     pair<int, int> opc = random_domain(idx_var);
     current_indiv[idx_var] = opc;
     long long current_f = mix_penalizations(incremental_evaluation(variables, current_indiv)); 
     long long best_f = mix_penalizations(incremental_evaluation(variables, best_indiv)); 
-
     if(best_f > current_f)
     {
 	//check all options of var idx_var
@@ -101,7 +117,6 @@ int i=0;
 	   {
 	     best_indiv[idx_var] = domain[idx_var][i];
              pair<long long, long long> p = calculateFitness(best_indiv);
-	     
              cout << mix_penalizations(p)<<endl;
 		if(p.second==0) exit(0);
 	   }
@@ -117,7 +132,7 @@ vector<pair<int, int> > Individual::iterated_forward_search(int maxite, vector<p
    int cont = 0;
    
   //get the initial classes in conflict..
-  vector<int> unassigned = TTP->unassign_hard_distributions(x_var);
+  vector<int> unassigned = TTP->unassign_hard_distributions(base_indiv);
   vector<int> variables(1);
   while(cont++ < maxite)
   {

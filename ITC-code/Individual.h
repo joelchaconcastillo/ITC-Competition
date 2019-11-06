@@ -39,6 +39,7 @@ class Individual{
 		vector<pair<int, int>> localSearch_for_ILS(int maxite, vector<pair<int, int>> &base_var);
 		vector<pair<int,int>>iterated_forward_search(int maxite, vector<pair<int, int >> &base_indiv);
 		inline long long mix_penalizations(pair<long long, long long> p){ return p.first+p.second*10000;}
+		void perturb(vector<pair<int, int>> &current_indiv);
 		void iterated_local_search();
 		void localSearch();
 

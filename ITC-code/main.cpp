@@ -64,6 +64,7 @@ l = 1572566617;
 	//  cout << TTP.get_var_room_size()<< endl;
 	  pair<long long, int > p = indiv.calculateFitness(indiv.x_var);
   	  indiv.iterated_local_search();
+  	  //indiv.iterated_forward_search(100000, indiv.x_var);
 //for(int i = 0; i < 10000; i++)
 	   p = indiv.calculateFitness(indiv.x_var);
 	  cout <<  p.first<< " " <<  p.second<<endl;
