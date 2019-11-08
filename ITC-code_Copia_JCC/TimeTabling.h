@@ -73,26 +73,25 @@ class TimeTablingProblem{
                  bool rooms; // a class could have an unset room ...
               };
 		TimeTablingProblem(string file);
+		TimeTablingProblem(){}
 		~TimeTablingProblem(){
 		}
 		void Load(string file);
 		void Parsing_type(const char *, Distribution &str_distribution);
 
 
-		long long penalize_pair( int id_class_i, int id_class_j, int id_distribution);
-		long long penalize_overall( int id_distribution);
-		bool conflicts_student(int id_student);
+		long long penalize_pair( int id_class_i, int id_class_j, int id_distributio, vector< pair<int, int>> &x_var);
+		long long penalize_overall(int id_distribution, vector< pair<int, int>> &x_var);
+		bool conflicts_student(int id_student, vector<pair<int, int>> &x_var);
 
-		int implicit_room_constraints();
-		long long Hard_constraints();
-		long long Soft_constraints();
-
-		long long time_penalization();
-
-		long long room_penalization();
+		int implicit_room_constraints(vector<pair<int, int>> &x_var);
+		long long Hard_constraints(vector<pair<int, int>> &x_var);
+		long long Soft_constraints(vector<pair<int, int>> &x_var);
+		long long time_penalization(vector<pair<int, int>> &x_var);
+		long long room_penalization(vector<pair<int, int>> &x_var);
 		
-		int student_penalization();
-		pair<long long, long long> incremental_evaluation_by_classes(vector<int> &selected_classes);
+		int student_penalization(vector<pair<int, int> > &x_var);
+		pair<long long, long long> incremental_evaluation_by_classes(vector<int> &selected_classes, vector< pair<int, int> > &x_var);
 
 		vector<int> unassign_hard_distributions(vector<pair<int, int>> &x_var);
 
@@ -191,7 +190,7 @@ class TimeTablingProblem{
 		unordered_map<int, unordered_map< bool, vector<int> > > distributions_by_feasibility;
 //	        vector<int> x_var_time, x_var_room;
 		vector< vector<int> > x_var_student;
- 		vector< pair<int, int> > x_var;
+// 		vector< pair<int, int> > x_var;
 		vector<vector<pair<int,int>>> domain;
 		vector< vector<int>> from_table_to_class;
                 vector<vector<int>> dependency_var; //dependency between variables..

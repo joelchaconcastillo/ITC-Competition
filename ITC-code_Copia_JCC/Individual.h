@@ -14,9 +14,10 @@ class Individual{
 		   long long fitness_v;
 		   long long room_penalization_v, time_penalization_v, student_penalization_v, soft_distributions_v, hard_distributions_v;
 		};
-		Individual(TimeTablingProblem &TTP_){
-		  this->TTP= &TTP_;
-		  this->domain = TTP->domain;
+		Individual(TimeTablingProblem TTP_){
+		 	        	
+		  this->TTP = TTP_;
+		 domain = TTP.domain;
 		
 		  //initialization....
 		  initialization();
@@ -54,7 +55,7 @@ class Individual{
 		void print();
 		long long fitness;
 		//static TimeTablingProblem *TimeTablingproblem;
-		TimeTablingProblem *TTP;
+		TimeTablingProblem TTP;
  		int dist;
 		vector<pair<int, int>> x_var;
 		vector<vector<pair<int,int>>> domain;
