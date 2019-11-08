@@ -15,27 +15,7 @@ using namespace std;
 // *room penalization: a penalization assigned to each room in relation with each classs.
 // *time penalization: a penalization assigned to each time in relation with each class. 
 // *student penalization: a penalization to each student conflict.
-pair<long long, long long> Individual::calculateFitness(vector<pair<int,int>> &x_ind){
-    long long hard_constraints_violated = TTP.Hard_constraints(x_ind);
-    long long distribution_soft_penalizations = TTP.Soft_constraints(x_ind);
-    long long room_penalization_v = TTP.room_penalization(x_ind);
-    long long time_penalization_v = TTP.time_penalization(x_ind);
-    long long student_penalization_v = TTP.student_penalization(x_ind);
-    long long TotalFitness = distribution_soft_penalizations*this->TTP.distribution_w;
 
-    TotalFitness += room_penalization_v*this->TTP.room_w;
-    TotalFitness += time_penalization_v*this->TTP.time_w;
-    TotalFitness += student_penalization_v*this->TTP.student_w;
-    return make_pair( TotalFitness, hard_constraints_violated);
-}
-pair<long long, long long> Individual::incremental_evaluation(vector<int> &classes_to_check, vector<pair<int,int>> &x_ind){
-//    for(int i = 0; i < classes_to_check.size(); i++)
-//    {
-//	int id_class = classes_to_check[i];
-//	TTP->x_var[id_class] = x_ind[id_class];
-//   }
-   return TTP.incremental_evaluation_by_classes(classes_to_check, x_ind);
-}
 void printBest(){
 	
 }
@@ -51,11 +31,10 @@ void Individual::iterated_forward_search_vns()
 	if(unassigned.empty()) break;
 	int idx = unassigned[rand()%unassigned.size()];
 	//optimize by room..
-	local_serach_by_room();
         //optimize by group distributions..
 	local_search_neighborhood(TTP.dependency_var[idx], current_indiv, 1);
+//	break;
 	//optimize by pair distributions...
-	local_search_by_pairs();
 	//lo
 	
 
@@ -82,35 +61,36 @@ void Individual::local_search_neighborhood(vector<int> & variables,vector<pair<i
   vector<int> perm = variables;
   int v = 0;
   vector<int> var(Nvariables);
-  random_shuffle(perm.begin(), perm.end());
 
   while(cont++ < maxite)
   {
+     random_shuffle(perm.begin(), perm.end());
      //perturb individual... 
      for(int i = 0; i < Nvariables; i++)
      {	
 	current_indiv[perm[i]] =  random_domain(perm[i]);
+        var[i] = perm[i];
      }
 
-     long long current_f = 0;//mix_penalizations(incremental_evaluation(perm, current_indiv)); 
-     long long best_f = 0;//mix_penalizations(incremental_evaluation(perm, best_indiv)); 
-     current_f = mix_penalizations(calculateFitness(current_indiv));
-     best_f= mix_penalizations(calculateFitness(best_indiv));
+     long long current_f = mix_penalizations(incremental_evaluation(var, current_indiv)); 
+     long long best_f = mix_penalizations(incremental_evaluation(var, best_indiv)); 
+  //   current_f = mix_penalizations(calculateFitness(current_indiv));
+  //   best_f= mix_penalizations(calculateFitness(best_indiv));
      if( current_f < best_f)  
      {
 	best_f = current_f;
- 	for(int i = 0; i < var.size(); i++)
-	   best_indiv[perm[i]] = current_indiv[perm[i]];
+// 	for(int i = 0; i < var.size(); i++)
+//	   best_indiv[perm[i]] = current_indiv[perm[i]];
 	best_indiv = current_indiv;
 //	best_indiv[idx] = current_indiv[idx];
 	cout  << mix_penalizations(calculateFitness(best_indiv)) <<" "<<best_f<<endl;
         cont = 0;
      }
-     else
-	{
-	   for(int i = 0; i < var.size(); i++)
-	   current_indiv[perm[i]] = best_indiv[perm[i]];
-	}
+     else current_indiv = best_indiv;
+//	{
+//	   for(int i = 0; i < var.size(); i++)
+//	   current_indiv[perm[i]] = best_indiv[perm[i]];
+//	}
   }
   original_indiv = best_indiv;
 }

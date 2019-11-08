@@ -93,6 +93,8 @@ class TimeTablingProblem{
 		int student_penalization(vector<pair<int, int> > &x_var);
 		pair<long long, long long> incremental_evaluation_by_classes(vector<int> &selected_classes, vector< pair<int, int> > &x_var);
 
+		pair<long long, long long> evaluator(vector<pair<int,int>> &x_ind);
+
 		vector<int> unassign_hard_distributions(vector<pair<int, int>> &x_var);
 
 

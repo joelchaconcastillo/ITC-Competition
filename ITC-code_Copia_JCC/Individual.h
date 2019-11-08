@@ -36,10 +36,11 @@ class Individual{
 		int getDistance(Individual &ind);
 		void Mutation(double pm);
 		void Crossover(Individual &ind);
-
+		inline pair<long long, long long> calculateFitness(vector<pair<int,int>> &x_ind){ return TTP.evaluator(x_ind);}
+		inline pair<long long, long long> incremental_evaluation(vector<int> &classes_to_check, vector<pair<int,int>> &x_ind){ return TTP.incremental_evaluation_by_classes(classes_to_check, x_ind);}
 		vector<pair<int, int>> localSearch_for_ILS(int maxite, vector<pair<int, int>> &base_var);
 		vector<pair<int,int>>iterated_forward_search(int maxite, vector<pair<int, int >> &base_indiv);
-		inline long long mix_penalizations(pair<long long, long long> p){ return p.first+p.second*10000;}
+		inline long long mix_penalizations(pair<long long, long long> p){ return p.second*10000;}
 		void perturb(vector<pair<int, int>> &current_indiv);
 		void iterated_local_search();
 		void localSearch();
@@ -50,8 +51,6 @@ class Individual{
 
 		inline pair<int, int> random_domain(int idx_var){return domain[idx_var][rand()%domain[idx_var].size()];}
 
-		pair<long long, long long> calculateFitness(vector<pair<int,int>> &x_ind);
-		pair<long long, long long> incremental_evaluation(vector<int> &classes_to_check, vector<pair<int,int>> &x_ind);
 		void print();
 		long long fitness;
 		//static TimeTablingProblem *TimeTablingproblem;
