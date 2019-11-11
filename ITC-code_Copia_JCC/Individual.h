@@ -47,7 +47,7 @@ class Individual{
 
 		void iterated_forward_search_vns();
 
-		void local_search_neighborhood(vector<int> & variables,vector<pair<int, int>> &original_indiv, int Nvariables);
+		void local_search_neighborhood(vector<int> & variables,vector<pair<int, int>> &original_indiv, int Nvariables, bool &improved);
 
 		inline pair<int, int> random_domain(int idx_var){return domain[idx_var][rand()%domain[idx_var].size()];}
 
@@ -58,6 +58,8 @@ class Individual{
  		int dist;
 		vector<pair<int, int>> x_var;
 		vector<vector<pair<int,int>>> domain;
+
+		void best_value_indiv(int id, vector<pair<int, int>> &current_indiv, vector<pair<int, int>> &best_indiv );
 };
 
 #endif
