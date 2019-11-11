@@ -67,13 +67,13 @@ l = 1572566617;
 	  Individual indiv(TTP);
         //  cout << TTP.get_var_time_size()<< endl;
 	//  cout << TTP.get_var_room_size()<< endl;
-	  pair<long long, int > p = indiv.calculateFitness(indiv.x_var);
+//	  pair<long long, int > p = indiv.calculateFitness(indiv.x_var);
   	  //indiv.iterated_local_search();
   	  indiv.iterated_forward_search_vns();
   	  //indiv.iterated_forward_search(100000, indiv.x_var);
 //for(int i = 0; i < 10000; i++)
-	   p = indiv.calculateFitness(indiv.x_var);
-	  cout <<  p.first<< " " <<  p.second<<endl;
+	//   p = indiv.calculateFitness(indiv.x_var);
+	 // cout <<  p.first<< " " <<  p.second<<endl;
 	  TTP.save_xml(indiv.x_var, TTP.x_var_student);
        
 

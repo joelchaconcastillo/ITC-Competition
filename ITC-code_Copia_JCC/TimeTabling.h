@@ -95,7 +95,7 @@ class TimeTablingProblem{
 
 		pair<long long, long long> evaluator(vector<pair<int,int>> &x_ind);
 
-		vector<int> unassign_hard_distributions(vector<pair<int, int>> &x_var);
+		vector<vector<int>> link_hard_distributions_variables(vector<pair<int, int>> &x_var);
 
 
 		void feasible_space();
@@ -121,7 +121,7 @@ class TimeTablingProblem{
 		inline bool DifferentRoom(int id_room_i, int id_room_j){  return ( id_room_i != id_room_j);}
 		inline bool SameAttendees(Time &C_ti, Time &C_tj, int id_room_i, int id_room_j)
 		{
-//			if( id_room_i == NOT_ROOM || id_room_j==NOT_ROOM) return false;
+			if( id_room_i == NOT_ROOM || id_room_j==NOT_ROOM) return false;
 			int  traveling_time_i_j = (id_room_i==NOT_ROOM)?0:rooms[id_room_i].time_travel_to_room[id_room_j];
 			int  traveling_time_j_i = (id_room_j==NOT_ROOM)?0:rooms[id_room_j].time_travel_to_room[id_room_i];
 			bool c1 = (C_ti.end + traveling_time_i_j ) <= C_tj.start ;
