@@ -31,12 +31,17 @@ void Individual::iterated_forward_search_vns()
 
 	if(component.empty()) break;
 	bool improved=false;
+	int maxi = -1, maxsize=-1;
 	for(int i = 0; i < component.size(); i++)
 	{
-//	  int i = 0;
-//	   cout << i <<endl;
-	   local_search_neighborhood(component[i], current_indiv, 1, improved);
+	   if( maxsize < (int)component[i].size())
+		{
+		maxi = i;
+		maxsize = (int)component[i].size();
+		}
 	}
+	cout << maxi <<endl;
+	   local_search_neighborhood(component[maxi], current_indiv, 1, improved);
 
     	long long current_f = mix_penalizations(calculateFitness(current_indiv)); 
 	if(current_f < best_f)
@@ -49,10 +54,10 @@ void Individual::iterated_forward_search_vns()
 	if(!improved) //perturb..
  	{
 	cout << "no"<<endl;
-	   for(int idx =0; idx < component.size(); idx++)
+//	   for(int idx =0; idx < component.size(); idx++)
 	   {
-//	   int idx =  rand()%component.size();
-	   int i = rand()%component[idx].size();
+	   int idx =  maxi;//rand()%component.size();
+//	   int i = rand()%component[idx].size();
 	   for(int i = 0; i < component[idx].size(); i++)
  		current_indiv[component[idx][i]] = random_domain(component[idx][i]);
 ////	   int idx = rand()%current_indiv.size();
@@ -64,7 +69,7 @@ void Individual::iterated_forward_search_vns()
 void Individual::local_search_neighborhood(vector<int> & variables,vector<pair<int, int>> &original_indiv, int Nvariables, bool &improved)
 {
   vector<pair<int, int>> current_indiv = original_indiv, best_indiv = original_indiv;
-  int maxite = 10000;
+  int maxite = 10;
   int cont = 0;
   vector<int> perm = variables;
   int v = 0;
@@ -77,15 +82,14 @@ void Individual::local_search_neighborhood(vector<int> & variables,vector<pair<i
        var[0] = perm[i];
        current_indiv[perm[i]] =  random_domain(perm[i]);
 
-    	long long best_f = mix_penalizations(incremental_evaluation(var, best_indiv, variables)); 
-        long long current_f = mix_penalizations(incremental_evaluation(var, current_indiv, variables)); 
-//	cout << best_f << " " <<current_f <<endl;
+    	long long best_f = mix_penalizations(incremental_evaluation(var, best_indiv)); 
+        long long current_f = mix_penalizations(incremental_evaluation(var, current_indiv)); 
         if( current_f < best_f)  
         {
            best_f = current_f;
            best_indiv[perm[i]] = current_indiv[perm[i]];
-          //best_value_indiv(perm[i], current_indiv, best_indiv);
-           //cout  << mix_penalizations(calculateFitness(best_indiv)) <<" "<<best_f<<endl;
+           //best_value_indiv(perm[i], current_indiv, best_indiv);
+           cout  << mix_penalizations(calculateFitness(best_indiv)) <<" "<<best_f<<endl;
            cont = 0;
 	   improved = true;
         }
