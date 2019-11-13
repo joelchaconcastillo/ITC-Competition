@@ -39,32 +39,34 @@ void Individual::iterated_forward_search_vns()
 		maxi = i;
 		maxsize = (int)component[i].size();
 		}
+	   local_search_neighborhood(component[i], current_indiv, 1, improved);
 	}
 	cout << maxi <<endl;
-	   local_search_neighborhood(component[maxi], current_indiv, 1, improved);
 
     	long long current_f = mix_penalizations(calculateFitness(current_indiv)); 
 	if(current_f < best_f)
 	{
 	   best_indiv = current_indiv;
 	   best_f = current_f;
+	   x_var = best_indiv;
 	   cout << "improved...: "<<best_f <<endl; 
            cout  << mix_penalizations(calculateFitness(best_indiv)) <<" "<<best_f<<endl;
 	}
 	if(!improved) //perturb..
  	{
 	cout << "no"<<endl;
-//	   for(int idx =0; idx < component.size(); idx++)
+	   for(int idx =0; idx < component.size(); idx++)
 	   {
-	   int idx =  maxi;//rand()%component.size();
-//	   int i = rand()%component[idx].size();
-	   for(int i = 0; i < component[idx].size(); i++)
+//	   int idx =  maxi;//rand()%component.size();
+	   int i = rand()%component[idx].size();
+///	   for(int i = 0; i < component[idx].size(); i++)
  		current_indiv[component[idx][i]] = random_domain(component[idx][i]);
 ////	   int idx = rand()%current_indiv.size();
  //		current_indiv[idx] = random_domain(idx);
 	   }
 	}
     }
+  x_var = best_indiv;
 }
 void Individual::local_search_neighborhood(vector<int> & variables,vector<pair<int, int>> &original_indiv, int Nvariables, bool &improved)
 {
