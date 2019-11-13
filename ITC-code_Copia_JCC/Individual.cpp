@@ -48,11 +48,14 @@ void Individual::iterated_forward_search_vns()
 
 	if(!improved) //perturb..
  	{
-	   for(int idx =0; idx < component.size(); idx++)
+//	   for(int idx =0; idx < component.size(); idx++)
 	   {
-	   //int idx = rand()%component.size();
-	   for(int i = 0; i < component[idx].size(); i++)
- 		current_indiv[component[idx][i]] = random_domain(component[idx][i]);
+//	   int idx = rand()%component.size();
+//	   int i = rand()%component[idx].size();
+	//   for(int i = 0; i < component[idx].size(); i++)
+ 	//	current_indiv[component[idx][i]] = random_domain(component[idx][i]);
+	   int idx = rand()%current_indiv.size();
+ 		current_indiv[idx] = random_domain(idx);
 	   }
 	}
     }
@@ -65,9 +68,9 @@ void Individual::local_search_neighborhood(vector<int> & variables,vector<pair<i
   vector<int> perm = variables;
   int v = 0;
   vector<int> var(Nvariables);
+  random_shuffle(perm.begin(), perm.end());
   while(cont++ < maxite)
   {
-    random_shuffle(perm.begin(), perm.end());
     for(int i = 0; i < perm.size(); i++)
     {  
        var[0] = perm[i];
@@ -79,7 +82,7 @@ void Individual::local_search_neighborhood(vector<int> & variables,vector<pair<i
         {
            best_f = current_f;
            best_indiv[perm[i]] = current_indiv[perm[i]];
-          // best_value_indiv(perm[i], current_indiv, best_indiv);
+ //          best_value_indiv(perm[i], current_indiv, best_indiv);
            cout  << mix_penalizations(calculateFitness(best_indiv)) <<" "<<best_f<<endl;
            //maxite+=10;
            cont = 0;
