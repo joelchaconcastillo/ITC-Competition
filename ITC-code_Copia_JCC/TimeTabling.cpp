@@ -746,12 +746,12 @@ int TimeTablingProblem::implicit_room_constraints(vector<pair<int, int>> &x_var)
 	for(int c1 = 0; c1 < room_to_class[r].size(); c1++)
 	{
 		int id_class_i = room_to_class[r][c1];
-		Time C_ti = times[id_class_i];
+		Time C_ti = times[x_var[id_class_i].first];
 	   for(int c2 = c1+1; c2 < room_to_class[r].size(); c2++)
 	   {
 		int id_class_j= room_to_class[r][c2];
 		if(id_class_i == id_class_j) continue;
-		Time C_tj = times[id_class_j];
+		Time C_tj = times[x_var[id_class_j].first];
 		if(Overlap(C_ti, C_tj))
 		{
 		   Incumpled_room_constraints++;
@@ -934,8 +934,12 @@ pair<long long, long long> TimeTablingProblem::incremental_evaluation_by_classes
 {
    long long hard_constraints_violated = 0, soft_constraints_violated = 0;
 
-   hard_constraints_violated += implicit_room_constraints(x_var);////pendiente...
-   vector<bool> distribution_checked(distributions.size(), false);
+   //hard_constraints_violated += implicit_room_constraints(x_var);////pendiente...
+    
+
+
+
+//   vector<bool> distribution_checked(distributions.size(), false);
    /////////hard constarints by pair...
 //   for(int c = 0; c < selected_classes.size(); c++)
 //   {
@@ -978,6 +982,7 @@ pair<long long, long long> TimeTablingProblem::incremental_evaluation_by_classes
   soft_constraints_violated += student_penalization(x_var)*student_w;
   return make_pair(soft_constraints_violated, hard_constraints_violated); 
 }
+
 
 void TimeTablingProblem::link_variables()
 {
@@ -1053,19 +1058,27 @@ vector<vector<int>> TimeTablingProblem::link_hard_distributions_variables(vector
     for(int r = 0; r < room_to_class.size(); r++)
     {
  	vector<int> row;
+//	vector<bool> g(room_to_class.size(), false);
 	bool flag =false;
 	for(int c1 = 0; c1 < room_to_class[r].size(); c1++)
 	{
 		int id_class_i = room_to_class[r][c1];
-		Time C_ti = times[id_class_i];
+		Time C_ti = times[x_var[id_class_i].first];
 	   for(int c2 = c1+1; c2 < room_to_class[r].size(); c2++)
 	   {
 		int id_class_j= room_to_class[r][c2];
 		if(id_class_i == id_class_j) continue;
-		Time C_tj = times[id_class_j];
+		Time C_tj = times[x_var[id_class_j].first];
 		if(Overlap(C_ti, C_tj))
 		{
 		   flag = true;
+		//   if(g[id_class_i])
+		//	row.push_back(id_class_i);
+		//   if(g[id_class_j])
+		//	row.push_back(id_class_j);
+
+		//   g[id_class_i] = true;
+		//   g[id_class_j] = true;
 		   //conflict_classes[id_class_i]=true;
 		   //conflict_classes[id_class_j]=true;
 		}
@@ -1073,6 +1086,7 @@ vector<vector<int>> TimeTablingProblem::link_hard_distributions_variables(vector
 	}
 	if(flag)
 	conflict_classes.push_back(room_to_class[r]);
+//	conflict_classes.push_back(row);
     }
 //	for(int i = 0; i < dependency_var.size(); i++)
 //	if(!dependency_var[i].empty()) conflict_classes.push_back(dependency_var[i]);

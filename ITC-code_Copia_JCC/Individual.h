@@ -37,7 +37,31 @@ class Individual{
 		void Mutation(double pm);
 		void Crossover(Individual &ind);
 		inline pair<long long, long long> calculateFitness(vector<pair<int,int>> &x_ind){ return TTP.evaluator(x_ind);}
-		inline pair<long long, long long> incremental_evaluation(vector<int> &classes_to_check, vector<pair<int,int>> &x_ind){ return TTP.incremental_evaluation_by_classes(classes_to_check, x_ind);}
+		inline pair<long long, long long> incremental_evaluation(vector<int> &classes_to_check, vector<pair<int,int>> &x_ind){  return TTP.incremental_evaluation_by_classes(classes_to_check, x_ind);}
+		inline pair<long long, long long> incremental_evaluation(vector<int> &classes_to_check, vector<pair<int,int>> &x_ind, vector<int> &N){
+
+		long long cont = 0;
+		//return TTP.incremental_evaluation_by_classes(classes_to_check, x_ind);
+		for(int i = 0; i < N.size(); i++)
+                {
+                    int id_class_i = N[i];
+                    TimeTablingProblem::Time C_ti = TTP.times[x_ind[id_class_i].first];
+                   for(int j = i+1; j < N.size(); j++)
+                    {
+                    	int id_class_j = N[j];
+
+                    	if(x_var[id_class_i].second != x_ind[id_class_j].second) continue;
+
+                    	TimeTablingProblem::Time C_tj = TTP.times[x_ind[id_class_j].first];
+                    	if(TTP.Overlap(C_ti, C_tj))
+                    	{
+                    	   cont++;
+                    	}
+                    }
+                }
+		return make_pair(0,cont);
+
+		}
 		vector<pair<int, int>> localSearch_for_ILS(int maxite, vector<pair<int, int>> &base_var);
 		vector<pair<int,int>>iterated_forward_search(int maxite, vector<pair<int, int >> &base_indiv);
 		inline long long mix_penalizations(pair<long long, long long> p){ return p.second*10000;}
