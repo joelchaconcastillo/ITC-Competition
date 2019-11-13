@@ -23,7 +23,7 @@ l = 1572566617;
 
 	///string file = string(argv[1]);
  //Test instances..
-//	string file = "Instances/public/wbg-fal10.xml";
+	//string file = "Instances/public/wbg-fal10.xml";
 	//string file = "Instances/public/lums-sum17.xml";
 	//string file = "Instances/public/bet-sum18.xml";
 	//string file = "Instances/public/pu-cs-fal07.xml";

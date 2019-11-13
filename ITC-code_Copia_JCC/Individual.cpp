@@ -24,6 +24,8 @@ void Individual::iterated_forward_search_vns()
     
     vector<pair<int, int>> current_indiv = x_var, best_indiv = x_var;
     long long best_f = mix_penalizations(calculateFitness(best_indiv)); 
+    vector<int> state_rooms;
+                                                                                     
     while(true)
     {
         //Making conflicting neighbourhood 
@@ -31,17 +33,8 @@ void Individual::iterated_forward_search_vns()
 
 	if(component.empty()) break;
 	bool improved=false;
-	int maxi = -1, maxsize=-1;
-	for(int i = 0; i < component.size(); i++)
-	{
-	   if( maxsize < (int)component[i].size())
-		{
-		maxi = i;
-		maxsize = (int)component[i].size();
-		}
-	   local_search_neighborhood(component[i], current_indiv, 1, improved);
-	}
-	cout << maxi <<endl;
+	int idx = rand()%component.size();
+	local_search_neighborhood(component[idx], current_indiv, 1, improved);
 
     	long long current_f = mix_penalizations(calculateFitness(current_indiv)); 
 	if(current_f < best_f)
@@ -52,12 +45,14 @@ void Individual::iterated_forward_search_vns()
 	   cout << "improved...: "<<best_f <<endl; 
            cout  << mix_penalizations(calculateFitness(best_indiv)) <<" "<<best_f<<endl;
 	}
+	else current_indiv = best_indiv;
+
 	if(!improved) //perturb..
  	{
-	cout << "no"<<endl;
-	   for(int idx =0; idx < component.size(); idx++)
+	   cout << "no"<<endl;
+//	   for(int idx =0; idx < component.size(); idx++)
 	   {
-//	   int idx =  maxi;//rand()%component.size();
+//	   int idx =  rand()%component.size();
 	   int i = rand()%component[idx].size();
 ///	   for(int i = 0; i < component[idx].size(); i++)
  		current_indiv[component[idx][i]] = random_domain(component[idx][i]);
@@ -90,7 +85,7 @@ void Individual::local_search_neighborhood(vector<int> & variables,vector<pair<i
         {
            best_f = current_f;
            best_indiv[perm[i]] = current_indiv[perm[i]];
-           //best_value_indiv(perm[i], current_indiv, best_indiv);
+           best_value_indiv(perm[i], current_indiv, best_indiv);
            cout  << mix_penalizations(calculateFitness(best_indiv)) <<" "<<best_f<<endl;
            cont = 0;
 	   improved = true;

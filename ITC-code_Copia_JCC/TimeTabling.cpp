@@ -1090,7 +1090,6 @@ vector<vector<int>> TimeTablingProblem::link_hard_distributions_variables(vector
     }
 //	for(int i = 0; i < dependency_var.size(); i++)
 //	if(!dependency_var[i].empty()) conflict_classes.push_back(dependency_var[i]);
-	return conflict_classes;	
 //	cout << conflict_classes.size() <<endl;
 
    /////////hard constarints by pair...
@@ -1120,7 +1119,7 @@ vector<vector<int>> TimeTablingProblem::link_hard_distributions_variables(vector
 	 Distribution &distribution_k = distributions[all_hard_distributions[k]];
 	 if(penalize_overall(all_hard_distributions[k], x_var) > 0)
 	 {
-	  for(int i = 0 ; i < distribution_k.classes.size(); i++)
+	//  for(int i = 0 ; i < distribution_k.classes.size(); i++)
           {
 	     //conflict_classes[distribution_k.classes[i]] = true;
 	      flag = true;
