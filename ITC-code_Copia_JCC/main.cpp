@@ -18,12 +18,12 @@ l = 1572566617;
 
 //////no student instances..
 
-	string file = "Instances/public/iku-fal17.xml";
+	//string file = "Instances/public/iku-fal17.xml";
 	//string file = "Instances/public/tg-fal17.xml";
 
 	///string file = string(argv[1]);
  //Test instances..
-	//string file = "Instances/public/wbg-fal10.xml";
+	string file = "Instances/public/wbg-fal10.xml";
 	//string file = "Instances/public/lums-sum17.xml";
 	//string file = "Instances/public/bet-sum18.xml";
 	//string file = "Instances/public/pu-cs-fal07.xml";

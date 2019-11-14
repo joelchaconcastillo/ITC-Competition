@@ -37,7 +37,7 @@ class Individual{
 		void Mutation(double pm);
 		void Crossover(Individual &ind);
 		inline pair<long long, long long> calculateFitness(vector<pair<int,int>> &x_ind){ return TTP.evaluator(x_ind);}
-		inline pair<long long, long long> incremental_evaluation(vector<int> &classes_to_check, vector<pair<int,int>> &x_ind){  return TTP.incremental_evaluation_by_classes(classes_to_check, x_ind);}
+		inline pair<long long, long long> incremental_evaluation(vector<int> &classes_to_check, vector<pair<int,int>> &x_ind, vector<set<int>> &state_rooms){  return TTP.incremental_evaluation_by_classes(classes_to_check, x_ind, state_rooms);}
 		inline pair<long long, long long> incremental_evaluation(vector<int> &classes_to_check, vector<pair<int,int>> &x_ind, vector<int> &N){
 
 		long long cont = 0;
@@ -71,8 +71,7 @@ class Individual{
 
 		void iterated_forward_search_vns();
 
-		void local_search_neighborhood(vector<int> & variables,vector<pair<int, int>> &original_indiv, int Nvariables, bool &improved);
-
+		void local_search_neighborhood(vector<int> & variables,vector<pair<int, int>> &original_indiv, int Nvariables, bool &improved,  vector<set<int>> &state_rooms);
 		inline pair<int, int> random_domain(int idx_var){return domain[idx_var][rand()%domain[idx_var].size()];}
 
 		void print();
@@ -83,7 +82,7 @@ class Individual{
 		vector<pair<int, int>> x_var;
 		vector<vector<pair<int,int>>> domain;
 
-		void best_value_indiv(int id, vector<pair<int, int>> &current_indiv, vector<pair<int, int>> &best_indiv );
+		void best_value_indiv(int id, vector<pair<int, int>> &current_indiv, vector<pair<int, int>> &best_indiv, vector<set<int>> & state_rooms);
 };
 
 #endif

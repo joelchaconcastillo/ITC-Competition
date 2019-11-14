@@ -91,11 +91,12 @@ class TimeTablingProblem{
 		long long room_penalization(vector<pair<int, int>> &x_var);
 		
 		int student_penalization(vector<pair<int, int> > &x_var);
-		pair<long long, long long> incremental_evaluation_by_classes(vector<int> &selected_classes, vector< pair<int, int> > &x_var);
+		pair<long long, long long> incremental_evaluation_by_classes(vector<int> &selected_classes, vector< pair<int, int> > &x_var, vector<set<int>> &state_rooms);
 
 		pair<long long, long long> evaluator(vector<pair<int,int>> &x_ind);
 
-		vector<vector<int>> link_hard_distributions_variables(vector<pair<int, int>> &x_var);
+
+		vector<vector<int>> link_hard_distributions_variables(vector<pair<int, int>> &x_var, vector<set<int>>& state_rooms);
 
 
 		void feasible_space();
