@@ -27,7 +27,8 @@ void Individual::iterated_forward_search_vns()
 
 
     vector<set<int>> state_rooms;
-                                                                                     
+        vector<int> all;
+    for(int i=0;i<x_var.size();i++) all.push_back(i);                                                                             
     while(true)
     {
         //Making conflicting neighbourhood 
@@ -36,8 +37,9 @@ void Individual::iterated_forward_search_vns()
 	if(component.empty()) break;
 	bool improved=false;
 //	int idx = rand()%component.size();
-	for(int idx = 0; idx < component.size(); idx++)
-	local_search_neighborhood(component[idx], current_indiv, 1, improved, state_rooms);
+	//for(int idx = 0; idx < component.size(); idx++)
+	//local_search_neighborhood(component[idx], current_indiv, 1, improved, state_rooms);
+	local_search_neighborhood(all, current_indiv, 1, improved, state_rooms);
 
     	long long current_f = mix_penalizations(calculateFitness(current_indiv)); 
 	if(current_f < best_f)
@@ -52,17 +54,21 @@ void Individual::iterated_forward_search_vns()
 
 	if(!improved) //perturb..
  	{
-	   cout << "no"<<endl;
+	   int k = rand()%all.size();
+		
+
+ 		current_indiv[k] = random_domain(k);
+	   //cout << "no"<<endl;
 //	   for(int idx =0; idx < component.size(); idx++)
 	   {
-	   int idx =  rand()%component.size();
-	   int i = rand()%component[idx].size();
-///	   for(int i = 0; i < component[idx].size(); i++)
- 		current_indiv[component[idx][i]] = random_domain(component[idx][i]);
+//	   int idx =  rand()%component.size();
+//	   int i = rand()%component[idx].size();
+//	   for(int i = 0; i < component[idx].size(); i++)
+ //		current_indiv[component[idx][i]] = random_domain(component[idx][i]);
 ////	   int idx = rand()%current_indiv.size();
  //		current_indiv[idx] = random_domain(idx);
 	   }
-	}
+	}else current_indiv = best_indiv;
     }
   x_var = best_indiv;
 }
@@ -70,7 +76,7 @@ void Individual::local_search_neighborhood(vector<int> & variables,vector<pair<i
 {
   vector<set<int>> state_rooms_best = state_rooms, state_rooms_current = state_rooms;
   vector<pair<int, int>> current_indiv = original_indiv, best_indiv = original_indiv;
-  int maxite = 10;
+  int maxite = 100;
   int cont = 0;
   vector<int> perm = variables;
   int v = 0;
@@ -87,8 +93,8 @@ void Individual::local_search_neighborhood(vector<int> & variables,vector<pair<i
 //          state_rooms_current[current_indiv[perm[i]].second].insert(perm[i]);
 //          state_rooms_current[best_indiv[perm[i]].second].erase(perm[i]);
 //	}
-    	long long best_f = mix_penalizations(incremental_evaluation(var, best_indiv, state_rooms_best)); 
-        long long current_f = mix_penalizations(incremental_evaluation(var, current_indiv, state_rooms_current)); 
+    	long long best_f = mix_penalizations(calculateFitness(best_indiv));   //mix_penalizations(incremental_evaluation(var, best_indiv, state_rooms_best)); 
+        long long current_f = mix_penalizations(calculateFitness(current_indiv))  ;//mix_penalizations(incremental_evaluation(var, current_indiv, state_rooms_current)); 
 
         if( current_f < best_f)  
         {
@@ -98,7 +104,7 @@ void Individual::local_search_neighborhood(vector<int> & variables,vector<pair<i
 	//   if( r!=NOT_ROOM)
 	//   state_rooms_best[r] = state_rooms_current[r];
         ///   best_value_indiv(perm[i], current_indiv, best_indiv, state_rooms_best);
-           cout  << mix_penalizations(calculateFitness(best_indiv)) <<" "<<best_f<<endl;
+           //cout  << mix_penalizations(calculateFitness(best_indiv)) <<" "<<best_f<<endl;
            cont = 0;
 	   improved = true;
         }
