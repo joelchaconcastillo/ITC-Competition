@@ -93,6 +93,8 @@ class TimeTablingProblem{
 		int student_penalization(vector<pair<int, int> > &x_var);
 		pair<long long, long long> incremental_evaluation_by_classes(vector<int> &selected_classes, vector< pair<int, int> > &x_var, vector<set<int>> &state_rooms);
 
+		pair<long long, long long> incremental_evaluation_by_classes(int id_class, vector< pair<int, int> > &x_var, vector<set<int>> &state_rooms);
+
 		pair<long long, long long> evaluator(vector<pair<int,int>> &x_ind);
 
 
@@ -107,6 +109,7 @@ class TimeTablingProblem{
 		void split_in_blocks(vector<vector<int> > &blocks, vector<int> &start_b, vector<int> &end_b, priority_queue< pair<int, pair<int, int> > > &pq, int S);
 
 
+		vector<int> variables_in_conflict(vector<pair<int, int>> &x_var);
 
 
 		inline bool SameStart(Time &C_ti, Time &C_tj){return (C_ti.start == C_tj.start); }

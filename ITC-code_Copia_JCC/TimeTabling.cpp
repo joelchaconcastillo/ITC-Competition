@@ -758,7 +758,6 @@ int TimeTablingProblem::implicit_room_constraints(vector<pair<int, int>> &x_var)
 		   //invalid_variables[id_class_i]=true;
 		   //invalid_variables[id_class_j]=true;
 		}
-
 	   }
 	}
     }
@@ -897,6 +896,7 @@ long long TimeTablingProblem::Hard_constraints(vector<pair<int, int>> &x_var)
 {
    long long hard_constraints_violated = 0;
    hard_constraints_violated += implicit_room_constraints(x_var);
+  return hard_constraints_violated;
   //cout << "rooms... "<<hard_constraints_violated<<endl;
    /////////hard constarints by pair...
    for(int k = 0; k < pair_hard_distributions.size(); k++)
@@ -956,7 +956,7 @@ pair<long long, long long> TimeTablingProblem::incremental_evaluation_by_classes
  ///       }
  ///  }
    hard_constraints_violated += implicit_room_constraints(x_var);
-
+  return make_pair(0, hard_constraints_violated);
    vector<bool> distribution_checked(distributions.size(), false);
  /////////hard constarints by pair...
    for(int c = 0; c < selected_classes.size(); c++)
@@ -1127,7 +1127,7 @@ vector<vector<int>> TimeTablingProblem::link_hard_distributions_variables(vector
 	}
         if(flag) conflict_classes.push_back(room_to_class[r]);
     }
-
+  return conflict_classes;
    /////////hard constarints by pair...
    for(int k = 0; k < pair_hard_distributions.size(); k++)
    {
@@ -1165,4 +1165,176 @@ vector<vector<int>> TimeTablingProblem::link_hard_distributions_variables(vector
     }
  ////////<--distributions of groups...
    return conflict_classes;
+}
+
+vector<int> TimeTablingProblem::variables_in_conflict(vector<pair<int, int>> &x_var)
+{
+  vector<int> conflict_classes; 
+  vector<bool>g(x_var.size(), false);
+
+   ////////rooms
+////    state_rooms.clear();
+////    state_rooms.resize(rooms.size());
+////    for(int i = 0; i < x_var.size(); i++)
+////    {
+////        if(x_var[i].second == NOT_ROOM) continue;
+////        state_rooms[x_var[i].second].insert(i);
+////    }
+//// 
+////    for(int i = 0; i < state_rooms.size(); i++)
+////    {
+////         //vector<int> row(state_rooms[i].begin(), state_rooms[i].end());
+////       vector<int> row;
+////       bool flag=false;
+////       for(auto r1 : state_rooms[i])
+////       {
+////          for(auto r2 : state_rooms[i])
+//// 	  {
+////	     if( (r1) == (r2)) continue;
+////	     if(Overlap(times[x_var[r1].first], times[x_var[r2].first]))
+////	     {
+////		     flag = true;
+////		      
+//////		     break;
+////	     }
+////	  }
+////	  if(flag) row.push_back(r1);
+////       }
+////       if(flag)
+////       {
+////         conflict_classes.push_back(row);
+////       }
+////    }
+//   hard_constraints_violated += implicit_room_constraints(x_var);
+    vector<vector<int> > room_to_class(rooms.size());
+    int Incumpled_room_constraints = 0;
+    for(int i = 0; i < classes.size(); i++) // agrouping or clustering classes by rooms...
+    {
+	if( x_var[i].second  == NOT_ROOM || x_var[i].first == NOT_CHECK) continue;    
+	room_to_class[x_var[i].second].push_back(i);
+    }
+    for(int r = 0; r < room_to_class.size(); r++)
+    {
+     bool flag = false;
+	for(int c1 = 0; c1 < room_to_class[r].size(); c1++)
+	{
+		int id_class_i = room_to_class[r][c1];
+		Time C_ti = times[x_var[id_class_i].first];
+	   for(int c2 = c1+1; c2 < room_to_class[r].size(); c2++)
+	   {
+		int id_class_j= room_to_class[r][c2];
+		if(id_class_i == id_class_j) continue;
+		Time C_tj = times[x_var[id_class_j].first];
+		if(Overlap(C_ti, C_tj))
+		{
+			g[id_class_i] = true;
+			g[id_class_j] = true;
+			flag = true;
+			//break;
+		}
+	   }
+	  // if(flag) break;
+	}
+        //if(flag) conflict_classes.push_back(room_to_class[r]);
+    }
+   for(int i = 0; i < g.size(); i++) if(g[i]) conflict_classes.push_back(i);
+  return conflict_classes;
+   /////////hard constarints by pair...
+   for(int k = 0; k < pair_hard_distributions.size(); k++)
+   {
+	bool flag = false;
+      Distribution &distribution_k = distributions[ pair_hard_distributions[k]];
+      for(int i = 0; i < distribution_k.classes.size(); i++)	
+      {
+         int id_class_i = distribution_k.classes[i];
+         for(int j = i+1; j < distribution_k.classes.size(); j++)
+         {
+            int id_class_j = distribution_k.classes[j];
+            long long current_value = penalize_pair(id_class_i, id_class_j, pair_hard_distributions[k], x_var);
+          if(current_value) 
+          {
+	     flag = true;
+           }
+         }	
+      }
+	//if(flag) conflict_classes.push_back(distribution_k.classes);
+   }
+   ////////distributions of groups...
+   for(int k = 0; k < all_hard_distributions.size(); k++)
+    {
+	bool flag = false;
+	 Distribution &distribution_k = distributions[all_hard_distributions[k]];
+	 if(penalize_overall(all_hard_distributions[k], x_var) > 0)
+	 {
+	//  for(int i = 0 ; i < distribution_k.classes.size(); i++)
+          {
+	     //conflict_classes[distribution_k.classes[i]] = true;
+	      flag = true;
+ 	  }
+         }
+	//if(flag) conflict_classes.push_back(distribution_k.classes);
+    }
+ ////////<--distributions of groups...
+   return conflict_classes;
+}
+pair<long long, long long> TimeTablingProblem::incremental_evaluation_by_classes(int id_class, vector< pair<int, int> > &x_var, vector<set<int>> &state_rooms)
+{
+   long long hard_constraints_violated = 0, soft_constraints_violated = 0;
+   vector<int> implicated_rooms;
+   vector<bool> g(rooms.size(), false);
+//   hard_constraints_violated += implicit_room_constraints(x_var);
+
+   for(int i = 0; i < x_var.size(); i++)
+   {
+	if(id_class == i) continue;
+	if(x_var[id_class].second == NOT_ROOM || x_var[i].second == NOT_ROOM) continue;
+	if(x_var[id_class].second != x_var[i].second) continue;
+	Time C_ti = times[x_var[id_class].first];
+	Time C_tj = times[x_var[i].first];
+	   if(Overlap(C_ti, C_tj))
+		{
+		   hard_constraints_violated++;
+		}
+   }
+
+
+  return make_pair(0, hard_constraints_violated);
+   vector<bool> distribution_checked(distributions.size(), false);
+ /////////hard constarints by pair...
+    for(int d = 0; d < distributions_by_class[id_class].size(); d++)
+    {
+         int id_distribution = distributions_by_class[id_class][d];
+         if(distribution_checked[id_distribution]) continue;
+         if( !distributions[id_distribution].required)continue;	
+         distribution_checked[id_distribution]=true;
+         if( distributions[id_distribution].pair)
+         {
+    	 long long penalization = 0;
+             for(int i = 0; i < distributions[id_distribution].classes.size(); i++)
+             {
+         	    int id_class_i = distributions[id_distribution].classes[i];
+    	   if( distributions[id_distribution].required && x_var[id_class_i].first == NOT_CHECK) continue;
+               for(int j = i+1; j < distributions[id_distribution].classes.size(); j++)
+         	   {
+         	      int id_class_j = distributions[id_distribution].classes[j];
+    	      if( distributions[id_distribution].required && x_var[id_class_j].first == NOT_CHECK) continue;
+         	      penalization +=  penalize_pair(id_class_i, id_class_j, id_distribution, x_var);
+         	   }	
+             }
+    	if( distributions[id_distribution].required) hard_constraints_violated += penalization;
+    	 else soft_constraints_violated +=penalization;
+         }
+         else
+         {
+    	   long long penalization = penalize_overall(id_distribution, x_var);
+               if( distributions[id_distribution].required) hard_constraints_violated += penalization;
+    	   else soft_constraints_violated +=penalization;
+         }
+    }
+ //weighting the soft distributions according the problem 
+  soft_constraints_violated *= distribution_w;
+  soft_constraints_violated += room_penalization(x_var)*room_w;
+  soft_constraints_violated += time_penalization(x_var)*time_w;
+  soft_constraints_violated += student_penalization(x_var)*student_w;
+  return make_pair(soft_constraints_violated, hard_constraints_violated); 
 }

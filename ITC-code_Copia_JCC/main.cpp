@@ -9,7 +9,7 @@ int main(int argc, char **argv){
 	l = 1572386933;
 l = 1572566617;
       l = time(NULL);
-//l=1572467997;
+l=1572467997;
 //	l = 1572464917;
 //	l = 1572389008;
 ////	l = 1572439927;
@@ -18,12 +18,12 @@ l = 1572566617;
 
 //////no student instances..
 
-	//string file = "Instances/public/iku-fal17.xml";
+	string file = "Instances/public/iku-fal17.xml";
 	//string file = "Instances/public/tg-fal17.xml";
 
 	///string file = string(argv[1]);
  //Test instances..
-	string file = "Instances/public/wbg-fal10.xml";
+	//string file = "Instances/public/wbg-fal10.xml";
 	//string file = "Instances/public/lums-sum17.xml";
 	//string file = "Instances/public/bet-sum18.xml";
 	//string file = "Instances/public/pu-cs-fal07.xml";
@@ -69,7 +69,8 @@ l = 1572566617;
 	//  cout << TTP.get_var_room_size()<< endl;
 //	  pair<long long, int > p = indiv.calculateFitness(indiv.x_var);
   	  //indiv.iterated_local_search();
-  	  indiv.iterated_forward_search_vns();
+  	  //indiv.iterated_forward_search_vns();
+  	  indiv.iterated_forward_search_vns2();
   	  //indiv.iterated_forward_search(100000, indiv.x_var);
 //for(int i = 0; i < 10000; i++)
 	//   p = indiv.calculateFitness(indiv.x_var);
