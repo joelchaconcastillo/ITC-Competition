@@ -20,11 +20,8 @@ void printBest(){
 	
 }
 
-void Individual::cut_domain(vector<vector<pair<int, int>>> &domain_, bool &flag_feasible, vector<pair<int, int>> &X)
+void Individual::cut_domain(vector<vector<pair<int, int>>> &domain_, bool &flag_feasible, vector<pair<int, int>> &X, int i)
 {
-   for(int i = 0; i < X.size(); i++)
-   {
-	if(X[i].first == NOT_CHECK) continue;
 	for(int j = 0; j < domain_.size(); j++)
 	{
 	   if(X[j].first != NOT_CHECK) continue;
@@ -42,9 +39,8 @@ void Individual::cut_domain(vector<vector<pair<int, int>>> &domain_, bool &flag_
 		return ;
 	   }
 	}
-   }
 }
-void Individual::BK(int cont, vector< pair<int, int> > &X, vector<vector<pair<int, int>>> domain_)
+void Individual::BK(int cont, vector< pair<int, int> > &X, vector<vector<pair<int, int>>> &domain_)
 {
    if(cont >= x_var.size())
    {
@@ -59,14 +55,10 @@ void Individual::BK(int cont, vector< pair<int, int> > &X, vector<vector<pair<in
       {
            bool flag_feasible = true;
 	   vector< vector<pair<int, int> > > dd = domain_;
-	   X[i] = domain[i][j];
-	   cut_domain(dd, flag_feasible, X);
-	   if( !flag_feasible)
-	   {
-              X[i].first = NOT_CHECK;
-	      continue;
-	   }
-	   BK(cont +1, X, dd);
+	   X[i] = domain_[i][j];
+	   cut_domain(dd, flag_feasible, X, i);
+	   if(flag_feasible)
+	      BK(cont +1, X, dd);
       	   X[i].first = NOT_CHECK;
       }
    }
