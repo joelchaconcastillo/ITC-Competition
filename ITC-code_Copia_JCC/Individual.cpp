@@ -19,9 +19,68 @@ using namespace std;
 void printBest(){
 	
 }
+
+void Individual::cut_domain(vector<vector<pair<int, int>>> &domain_, bool &flag_feasible, vector<pair<int, int>> &X)
+{
+   for(int i = 0; i < X.size(); i++)
+   {
+	if(X[i].first == NOT_CHECK) continue;
+	for(int j = 0; j < domain_.size(); j++)
+	{
+	   if(X[j].first != NOT_CHECK) continue;
+	   for(int k = domain_[j].size()-1; k >=0; k--)
+	   {
+              if( !TTP.feasible_pair(X[i], domain_[j][k]))
+	      {
+		iter_swap(domain_[j].begin()+k, domain_[j].end()-1);	
+		domain_[j].pop_back();
+	      }	
+	   }
+	   if( domain_[j].empty())
+	   {
+		flag_feasible = false;
+		return ;
+	   }
+	}
+   }
+}
+void Individual::BK(int cont, vector< pair<int, int> > &X, vector<vector<pair<int, int>>> domain_)
+{
+   if(cont >= x_var.size())
+   {
+	cout << "found it!!--"<<endl;
+	exit(0);
+   }
+	cout << cont <<endl;
+   for(int i = 0; i < X.size(); i++)
+   {
+      if( X[i].first != NOT_CHECK) continue;
+      for(int j = 0; j < domain_.size(); j++)
+      {
+           bool flag_feasible = true;
+	   vector< vector<pair<int, int> > > dd = domain_;
+	   X[i] = domain[i][j];
+	   cut_domain(dd, flag_feasible, X);
+	   if( !flag_feasible)
+	   {
+              X[i].first = NOT_CHECK;
+	      continue;
+	   }
+	   BK(cont +1, X, dd);
+      	   X[i].first = NOT_CHECK;
+      }
+   }
+}
 void Individual::iterated_forward_search_vns2()
 {
+
     vector<pair<int, int>> current_indiv = x_var, best_indiv = x_var;
+    for(int i = 0; i < current_indiv.size(); i++)
+    {
+	current_indiv[i].first = NOT_CHECK;
+    }
+     BK(0, current_indiv, domain);
+    return;
 	vector<set<int>> s;
     int cont = 0, maxite = 100000;
     vector<int> v(1);

@@ -1338,3 +1338,12 @@ pair<long long, long long> TimeTablingProblem::incremental_evaluation_by_classes
   soft_constraints_violated += student_penalization(x_var)*student_w;
   return make_pair(soft_constraints_violated, hard_constraints_violated); 
 }
+bool TimeTablingProblem::feasible_pair(pair<int, int> &v1, pair<int, int> &v2)
+{
+     if( v1.second == NOT_ROOM || v2.second == NOT_ROOM) return true;
+     if( v1.second != v2.second) return true;
+     Time C_ti = times[v1.first];
+     Time C_tj = times[v2.first];
+     if(Overlap(C_ti, C_tj)) return false;
+     return true; 
+}

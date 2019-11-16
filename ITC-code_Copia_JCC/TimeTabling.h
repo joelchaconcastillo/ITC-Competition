@@ -100,6 +100,7 @@ class TimeTablingProblem{
 
 		vector<vector<int>> link_hard_distributions_variables(vector<pair<int, int>> &x_var, vector<set<int>>& state_rooms);
 
+		bool feasible_pair(pair<int, int> &v1, pair<int, int> &v2);
 
 		void feasible_space();
 

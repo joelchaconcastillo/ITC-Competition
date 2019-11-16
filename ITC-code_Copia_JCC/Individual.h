@@ -32,6 +32,11 @@ class Individual{
 		~Individual(){
 		}
 //	        inline int first(long long int bin){ int pos =0; while( !(bin & (1<<pos)) )pos++; return pos;  }		
+
+
+		void BK(int cont, vector< pair<int, int> > &X, vector<vector<pair<int, int>>> domain_);
+		void cut_domain(vector<vector<pair<int, int>>> &domain_, bool &feasible, vector<pair<int, int>> &X);
+
 		void initialization();
 		int getDistance(Individual &ind);
 		void Mutation(double pm);
@@ -41,6 +46,9 @@ class Individual{
 		inline pair<long long, long long> incremental_evaluation(int id_class, vector<pair<int,int>> &x_ind, vector<set<int>> &state_rooms){  return TTP.incremental_evaluation_by_classes(id_class, x_ind, state_rooms);}
 		inline pair<long long, long long> incremental_evaluation(vector<int> &classes_to_check, vector<pair<int,int>> &x_ind, vector<int> &N){
 
+
+
+		
 		long long cont = 0;
 		//return TTP.incremental_evaluation_by_classes(classes_to_check, x_ind);
 		for(int i = 0; i < N.size(); i++)
