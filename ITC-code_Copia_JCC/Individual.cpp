@@ -29,8 +29,10 @@ void Individual::cut_domain(vector<vector<pair<int, int>>> &domain_, bool &flag_
 	   {
               if( !TTP.feasible_pair(X[i], domain_[j][k]))
 	      {
-		iter_swap(domain_[j].begin()+k, domain_[j].end()-1);	
-		domain_[j].pop_back();
+
+	//	iter_swap(domain_[j].begin()+k, domain_[j].end()-1);	
+	//	domain_[j].pop_back();
+//		domain_[j].erase(domain_[j].begin()+k);
 	      }	
 	   }
 	   if( domain_[j].empty())
@@ -42,35 +44,50 @@ void Individual::cut_domain(vector<vector<pair<int, int>>> &domain_, bool &flag_
 }
 void Individual::BK(int cont, vector< pair<int, int> > &X, vector<vector<pair<int, int>>> &domain_)
 {
+	cout << mix_penalizations(calculateFitness(X)) <<endl;  
    if(cont >= x_var.size())
    {
-	cout << "found it!!--"<<endl;
-	exit(0);
+	   static int countfeasible = 0;
+	cout << "found it!!-- "<< countfeasible++<<endl;
+	cout << mix_penalizations(calculateFitness(X)) <<endl;  
+	//exit(0);
+	return ;
    }
 	cout << cont <<endl;
    for(int i = 0; i < X.size(); i++)
    {
-      if( X[i].first != NOT_CHECK) continue;
+      //if( X[i].first != NOT_CHECK) continue;
       for(int j = 0; j < domain_.size(); j++)
       {
            bool flag_feasible = true;
-	   vector< vector<pair<int, int> > > dd = domain_;
 	   X[i] = domain_[i][j];
+	   vector< vector<pair<int, int> > > dd = domain_;
 	   cut_domain(dd, flag_feasible, X, i);
-	   if(flag_feasible)
+	   //if(flag_feasible)
+	   {
 	      BK(cont +1, X, dd);
-      	   X[i].first = NOT_CHECK;
+	   //if( i > 0)
+	     //cout << i << " " << X[i].first << endl;
+	   }
       }
+     // X[i].first = NOT_CHECK;
    }
 }
 void Individual::iterated_forward_search_vns2()
 {
-
+//    for(int i = 0; i < domain.size(); i++)
+//    {
+//      for(int j = 0; j  < domain[i].size(); j++)
+//      {
+//	cout << domain[i][j].first << " " ;
+//      }
+//      cout << endl;
+//    }
     vector<pair<int, int>> current_indiv = x_var, best_indiv = x_var;
-    for(int i = 0; i < current_indiv.size(); i++)
-    {
-	current_indiv[i].first = NOT_CHECK;
-    }
+//    for(int i = 0; i < current_indiv.size(); i++)
+//    {
+//	current_indiv[i].first = NOT_CHECK;
+//    }
      BK(0, current_indiv, domain);
     return;
 	vector<set<int>> s;

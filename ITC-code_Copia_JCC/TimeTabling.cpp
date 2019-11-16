@@ -1345,5 +1345,4 @@ bool TimeTablingProblem::feasible_pair(pair<int, int> &v1, pair<int, int> &v2)
      Time C_ti = times[v1.first];
      Time C_tj = times[v2.first];
      if(Overlap(C_ti, C_tj)) return false;
-     return true; 
 }
