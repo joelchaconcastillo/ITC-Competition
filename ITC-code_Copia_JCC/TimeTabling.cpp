@@ -26,7 +26,7 @@ TimeTablingProblem::TimeTablingProblem(string file){
   feasible_space();
   cout << "average time domain " << get_var_time_size() <<endl;
   cout << "average room domain " << get_var_room_size() <<endl;
-  cout << "average feasible domain " << get_feasible_domain_size() <<endl;
+  cout << "average feasible domain " << get_feasible_domain_size(domain) <<endl;
 
 }
 void TimeTablingProblem::feasible_space()
@@ -697,12 +697,12 @@ void TimeTablingProblem::loading_example()
 //	}
     }
 }
-long long int TimeTablingProblem::get_feasible_domain_size()
+long long int TimeTablingProblem::get_feasible_domain_size(vector< vector<pair<int, int>>> &_domain)
 { 
    long long int aveprod = 0;
-   for(int i = 0; i < domain.size(); i++)
+   for(int i = 0; i < _domain.size(); i++)
    {    
-	aveprod += domain[i].size();
+	aveprod += _domain[i].size();
    }
    aveprod /= domain.size();
    return aveprod;

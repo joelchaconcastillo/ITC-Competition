@@ -40,12 +40,12 @@ void Individual::cut_domain(vector<vector<pair<int, int>>> &domain_, bool &flag_
 	   }
 	}
 }
-void Individual::BK(int current, vector< pair<int, int> > &X, vector<vector<pair<int, int>>> &domain_, vector< vector<bool >> &grid)
+void Individual::BK(int current, vector< pair<int, int> > &X, vector<vector<pair<int, int>>> &domain_, vector< vector<bool >> &grid, int current_domain)
 {
-  if( current == X.size())
+  if( current ==  3 )//X.size())
    {
 	long long  v = mix_penalizations(calculateFitness(X));
-//	cout << v <<endl;
+	cout << v <<endl;
 	if( v == 0)
 	{
 	   static int countfeasible = 0;
@@ -55,21 +55,26 @@ void Individual::BK(int current, vector< pair<int, int> > &X, vector<vector<pair
 	}
 	return ;
    }
+ // cout << current <<endl;
   if(current < X.size())
+
   {
    for(int j = 0; j < domain_[current].size(); j++)
    {
-	if(grid[current][j]) continue;
+	//if(grid[current][j]) continue;
         bool flag_feasible = true;
 	X[current] = domain_[current][j];
 	vector< vector<pair<int, int> > > dd = domain_;
 	cut_domain(dd, flag_feasible, X, current);
-	grid[current][j] = true;
+//	grid[current+1][j] = true;
 	if(flag_feasible)
 	{
-	   BK(current+1, X, dd, grid);
+
+	//cout << TTP.get_feasible_domain_size(dd) << endl;
+//	cout << current << " " <<j <<endl;
+	   BK(current+1, X, dd, grid, j+1);
 	}
-	grid[current][j] = false;
+//	grid[current+1][j] = false;
    }
   }
 }
@@ -103,7 +108,7 @@ void Individual::iterated_forward_search_vns2()
 	   grid[i] = row;
 	}
 
-     BK(0, current_indiv, domain, grid);
+     BK(0, current_indiv, domain, grid, 0);
     return;
 	vector<set<int>> s;
     int cont = 0, maxite = 100000;

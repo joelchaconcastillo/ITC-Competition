@@ -167,7 +167,7 @@ class TimeTablingProblem{
 
 		long long int get_var_time_size();
 		long long int get_var_room_size();
-		long long int get_feasible_domain_size();
+		long long int get_feasible_domain_size(vector< vector<pair<int, int>>> &_domain);
 		void loading_example();
 		void save_xml(vector<pair<int, int>> &x_var, vector< vector<int> > &x_var_student);
 
