@@ -34,7 +34,7 @@ class Individual{
 //	        inline int first(long long int bin){ int pos =0; while( !(bin & (1<<pos)) )pos++; return pos;  }		
 
 
-		void BK(int cont, vector< pair<int, int> > &X, vector<vector<pair<int, int>>>&domain_);
+		void BK(int cont, vector< pair<int, int> > &X, vector<vector<pair<int, int>>>&domain_, vector< vector<bool > > &grid);
 		void cut_domain(vector<vector<pair<int, int>>> &domain_, bool &feasible, vector<pair<int, int>> &X, int i);
 
 		void initialization();

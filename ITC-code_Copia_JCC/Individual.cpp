@@ -22,56 +22,56 @@ void printBest(){
 
 void Individual::cut_domain(vector<vector<pair<int, int>>> &domain_, bool &flag_feasible, vector<pair<int, int>> &X, int i)
 {
-	for(int j = 0; j < domain_.size(); j++)
+	for(int j = i+1; j < X.size(); j++)
 	{
-	   if(X[j].first != NOT_CHECK) continue;
 	   for(int k = domain_[j].size()-1; k >=0; k--)
 	   {
               if( !TTP.feasible_pair(X[i], domain_[j][k]))
 	      {
-
-	//	iter_swap(domain_[j].begin()+k, domain_[j].end()-1);	
-	//	domain_[j].pop_back();
+		iter_swap(domain_[j].begin()+k, domain_[j].end()-1);	
+		domain_[j].pop_back();
 //		domain_[j].erase(domain_[j].begin()+k);
 	      }	
 	   }
-	   if( domain_[j].empty())
+	   if(domain_[j].empty())
 	   {
 		flag_feasible = false;
 		return ;
 	   }
 	}
 }
-void Individual::BK(int cont, vector< pair<int, int> > &X, vector<vector<pair<int, int>>> &domain_)
+void Individual::BK(int current, vector< pair<int, int> > &X, vector<vector<pair<int, int>>> &domain_, vector< vector<bool >> &grid)
 {
-	cout << mix_penalizations(calculateFitness(X)) <<endl;  
-   if(cont >= x_var.size())
+  if( current == X.size())
    {
+	long long  v = mix_penalizations(calculateFitness(X));
+//	cout << v <<endl;
+	if( v == 0)
+	{
 	   static int countfeasible = 0;
 	cout << "found it!!-- "<< countfeasible++<<endl;
 	cout << mix_penalizations(calculateFitness(X)) <<endl;  
-	//exit(0);
+	exit(0);
+	}
 	return ;
    }
-	cout << cont <<endl;
-   for(int i = 0; i < X.size(); i++)
+  if(current < X.size())
+  {
+   for(int j = 0; j < domain_[current].size(); j++)
    {
-      //if( X[i].first != NOT_CHECK) continue;
-      for(int j = 0; j < domain_.size(); j++)
-      {
-           bool flag_feasible = true;
-	   X[i] = domain_[i][j];
-	   vector< vector<pair<int, int> > > dd = domain_;
-	   cut_domain(dd, flag_feasible, X, i);
-	   //if(flag_feasible)
-	   {
-	      BK(cont +1, X, dd);
-	   //if( i > 0)
-	     //cout << i << " " << X[i].first << endl;
-	   }
-      }
-     // X[i].first = NOT_CHECK;
+	if(grid[current][j]) continue;
+        bool flag_feasible = true;
+	X[current] = domain_[current][j];
+	vector< vector<pair<int, int> > > dd = domain_;
+	cut_domain(dd, flag_feasible, X, current);
+	grid[current][j] = true;
+	if(flag_feasible)
+	{
+	   BK(current+1, X, dd, grid);
+	}
+	grid[current][j] = false;
    }
+  }
 }
 void Individual::iterated_forward_search_vns2()
 {
@@ -84,11 +84,26 @@ void Individual::iterated_forward_search_vns2()
 //      cout << endl;
 //    }
     vector<pair<int, int>> current_indiv = x_var, best_indiv = x_var;
-//    for(int i = 0; i < current_indiv.size(); i++)
-//    {
-//	current_indiv[i].first = NOT_CHECK;
-//    }
-     BK(0, current_indiv, domain);
+   // for(int i = 0; i < current_indiv.size(); i++)
+   // {
+   //     current_indiv[i].first = NOT_CHECK;
+   // }
+ //    for(int i =0 ;i < domain.size(); i++)
+ //    {
+ //       for(int j = 0; j < domain[i].size(); j++)
+ //       {
+ //       	cout << domain[i][j].first << " " ;
+ //       }
+ //       cout << endl;
+ //    }
+     vector< vector< bool >> grid(domain.size());
+     for(int i = 0; i < domain.size(); i++)
+	{
+	  vector<bool> row(domain[i].size(), false);
+	   grid[i] = row;
+	}
+
+     BK(0, current_indiv, domain, grid);
     return;
 	vector<set<int>> s;
     int cont = 0, maxite = 100000;

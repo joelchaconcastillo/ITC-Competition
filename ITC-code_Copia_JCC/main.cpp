@@ -18,7 +18,7 @@ l=1572467997;
 
 //////no student instances..
 
-//	string file = "Instances/public/iku-fal17.xml";
+	//string file = "Instances/public/iku-fal17.xml";
 	//string file = "Instances/public/tg-fal17.xml";
 
 	///string file = string(argv[1]);
